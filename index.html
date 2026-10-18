@@ -1235,8 +1235,19 @@
       </div>
 
       <div class="form-group">
-        <label>কোনো কি-ওয়ার্ড না মিললে ডিফল্ট রিপ্লাই (ঐচ্ছিক)</label>
-        <textarea id="cfgFallbackReply" class="form-control" style="min-height:70px;" placeholder="যদি কোনো কি-ওয়ার্ড না মিলে তবে ফাঁকা রাখলে বট কিছুই বলবে না (সুপারিশকৃত)।"></textarea>
+        <label class="switch-label">
+          <span><b>কোনো কি-ওয়ার্ড না মিললে স্বয়ংক্রিয় রিপ্লাই পাঠাবেন?</b></span>
+          <div class="switch">
+            <input type="checkbox" id="cfgFallbackEnabled" onchange="toggleFallbackTextarea(this.checked)">
+            <span class="slider"></span>
+          </div>
+        </label>
+        <div class="input-hint">অন থাকলে নিচে দেওয়া বার্তাটি পাঠানো হবে। অফ থাকলে কোনো কি-ওয়ার্ড না মিললে বট সম্পূর্ণ নীরব থাকবে।</div>
+      </div>
+
+      <div class="form-group" id="fallbackTextareaGroup" style="display:none;">
+        <label>ফলব্যাক রিপ্লাই বার্তা <span class="required">*</span></label>
+        <textarea id="cfgFallbackReply" class="form-control" style="min-height:80px;" placeholder="যেমন: দুঃখিত, আপনার প্রশ্নটি বুঝতে পারিনি। বিস্তারিত তথ্যের জন্য আমাদের সাথে সরাসরি যোগাযোগ করুন।"></textarea>
       </div>
 
       <div class="form-group">
@@ -1779,14 +1790,15 @@
       for (const r of allRules) {
         if (r.is_active === 0 || r.is_active === false) continue;
         const kwList = String(r.keywords || '').split(',').map(k => k.trim().toLowerCase()).filter(k => k);
-        for (const kw of kwList) {
-          if (clean.includes(kw)) {
-            matchedRule = r;
-            matchedKw = kw;
-            break;
-          }
+        if (kwList.length === 0) continue;
+
+        // AND Logic: ALL keywords in this rule must be present in student's message (order independent)
+        const allMatch = kwList.every(kw => clean.includes(kw));
+        if (allMatch) {
+          matchedRule = r;
+          matchedKw = kwList.join(', ');
+          break;
         }
-        if (matchedRule) break;
       }
 
       // Typing indicator
@@ -1808,19 +1820,23 @@
           agentBubble.innerHTML = `
             ${escapeHtml(matchedRule.reply_text)}
             <div style="font-size:11px; color:#059669; margin-top:6px; font-weight:700;">
-              ✓ কি-ওয়ার্ড ম্যাচ: "${escapeHtml(matchedKw)}" (টাইপিং ডিলে: ${waitSec}s)
+              ✓ সকল কি-ওয়ার্ড মিলেছে: [${escapeHtml(matchedKw)}] (টাইপিং ডিলে: ${waitSec}s)
             </div>
           `;
-        } else if (localSettings.fallbackReply) {
-          agentBubble.innerText = localSettings.fallbackReply;
+        } else if ((localSettings.fallbackEnabled === 'true' || localSettings.fallbackEnabled === true) && localSettings.fallbackReply) {
+          agentBubble.innerHTML = `
+            ${escapeHtml(localSettings.fallbackReply)}
+            <div style="font-size:11px; color:#d97706; margin-top:6px; font-weight:700;">
+              ℹ️ কোনো কি-ওয়ার্ড মেলেনি ➔ ফলব্যাক অটো-রিপ্লাই পাঠানো হয়েছে
+            </div>
+          `;
         } else {
           agentBubble.innerHTML = `
             <span style="color:var(--text-muted); font-style:italic;">
-              (কোনো কি-ওয়ার্ড মেলেনি, তাই বট নীরব রয়েছে। নতুন রুল ট্রেইন করতে 'ডাটা ইনপুট' সেকশন ব্যবহার করুন।)
+              (কোনো কি-ওয়ার্ড মেলেনি এবং ফলব্যাক রিপ্লাই অফ রয়েছে, তাই বট সম্পূর্ণ নীরব রয়েছে।)
             </span>
           `;
         }
-
         chat.appendChild(agentBubble);
         chat.scrollTop = chat.scrollHeight;
       }, waitSec * 1000);
@@ -1877,41 +1893,107 @@
     }
 
     // Settings Modal
-    function openSettingsModal() {
+    function toggleFallbackTextarea(show) {
+      const el = document.getElementById('fallbackTextareaGroup');
+      if (el) el.style.display = show ? 'block' : 'none';
+    }
+
+    async function openSettingsModal() {
       document.getElementById('cfgWorkerUrl').value = WORKER_API;
       document.getElementById('cfgLocalUrl').value = LOCAL_API;
-      document.getElementById('cfgFallbackReply').value = localSettings.fallbackReply || '';
-      document.getElementById('cfgTypingIndicator').checked = localSettings.typingIndicator !== false;
-      document.getElementById('cfgOnlyPrivate').checked = localSettings.onlyPrivate !== false;
       document.getElementById('settingsModal').classList.add('open');
+
+      // Fetch live settings directly from Cloudflare D1
+      try {
+        const res = await fetch(WORKER_API + '/api/agent/settings');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.settings && Object.keys(data.settings).length > 0) {
+            localSettings = { ...localSettings, ...data.settings };
+            localStorage.setItem('agent_settings', JSON.stringify(localSettings));
+          }
+        }
+      } catch (e) {}
+
+      const isFallbackOn = (localSettings.fallbackEnabled === 'true' || localSettings.fallbackEnabled === true);
+      const fbCheck = document.getElementById('cfgFallbackEnabled');
+      if (fbCheck) fbCheck.checked = isFallbackOn;
+      toggleFallbackTextarea(isFallbackOn);
+
+      document.getElementById('cfgFallbackReply').value = localSettings.fallbackReply || '';
+      document.getElementById('cfgTypingIndicator').checked = (localSettings.typingIndicator === 'true' || localSettings.typingIndicator === true || localSettings.typingIndicator !== false);
+      document.getElementById('cfgOnlyPrivate').checked = (localSettings.onlyPrivate === 'true' || localSettings.onlyPrivate === true || localSettings.onlyPrivate !== false);
     }
 
     function closeSettingsModal() {
       document.getElementById('settingsModal').classList.remove('open');
     }
 
-    function saveSettings() {
+    async function saveSettings() {
+      const saveBtn = document.getElementById('saveSettingsBtn');
+      if (saveBtn) {
+        saveBtn.innerText = 'D1-এ সেভ হচ্ছে...';
+        saveBtn.disabled = true;
+      }
+
       WORKER_API = document.getElementById('cfgWorkerUrl').value.trim();
       LOCAL_API = document.getElementById('cfgLocalUrl').value.trim();
-      localSettings.fallbackReply = document.getElementById('cfgFallbackReply').value.trim();
-      localSettings.typingIndicator = document.getElementById('cfgTypingIndicator').checked;
-      localSettings.onlyPrivate = document.getElementById('cfgOnlyPrivate').checked;
 
+      const isFallbackOn = document.getElementById('cfgFallbackEnabled') ? document.getElementById('cfgFallbackEnabled').checked : false;
+
+      const payload = {
+        fallbackEnabled: isFallbackOn ? 'true' : 'false',
+        fallbackReply: document.getElementById('cfgFallbackReply').value.trim(),
+        typingIndicator: document.getElementById('cfgTypingIndicator').checked ? 'true' : 'false',
+        onlyPrivate: document.getElementById('cfgOnlyPrivate').checked ? 'true' : 'false',
+        defaultDelay: String(localSettings.defaultDelay || '3')
+      };
+
+      localSettings = { ...localSettings, ...payload };
       localStorage.setItem('agent_worker_url', WORKER_API);
       localStorage.setItem('agent_local_url', LOCAL_API);
       localStorage.setItem('agent_settings', JSON.stringify(localSettings));
 
-      fetch(`${LOCAL_API}/api/settings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(localSettings)
-      }).catch(() => {});
+      let d1Saved = false;
+
+      // 1. Direct Save to Cloudflare D1 Database
+      try {
+        const wRes = await fetch(WORKER_API + '/api/agent/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (wRes.ok) {
+          const wData = await wRes.json();
+          if (wData.success) d1Saved = true;
+        }
+      } catch (e) {
+        console.error('Error saving settings to Worker D1:', e);
+      }
+
+      // 2. Also notify local server if active
+      try {
+        await fetch(LOCAL_API + '/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {}
+
+      if (saveBtn) {
+        saveBtn.innerText = 'সেভ সেটিংস';
+        saveBtn.disabled = false;
+      }
 
       closeSettingsModal();
-      showToast('⚙️ সেটিংস সফলভাবে সংরক্ষিত হয়েছে!');
+
+      if (d1Saved) {
+        showToast('সেটিংস Cloudflare D1 ডাটাবেজে সফলভাবে সংরক্ষিত হয়েছে!');
+      } else {
+        showToast('সেটিংস লোকালি সেভ হয়েছে, D1 কানেকশন চেক করুন।', 'warning');
+      }
     }
 
-    // Init
     window.addEventListener('DOMContentLoaded', () => {
       // Check saved theme
       const savedTheme = localStorage.getItem('agent_theme');
@@ -1925,6 +2007,15 @@
 
       renderTagChips();
       fetchRules();
+      // Auto-load live settings from Cloudflare D1
+      fetch(WORKER_API + '/api/agent/settings')
+        .then(r => r.json())
+        .then(d => {
+          if (d && d.settings && Object.keys(d.settings).length > 0) {
+            localSettings = { ...localSettings, ...d.settings };
+            localStorage.setItem('agent_settings', JSON.stringify(localSettings));
+          }
+        }).catch(() => {});
       checkGatewayStatus();
       setInterval(checkGatewayStatus, 5000);
     });
