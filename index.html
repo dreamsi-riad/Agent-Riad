@@ -8,81 +8,131 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
+    /* =========================================================
+       DAY MODE (LIGHT THEME) — CLEAN, CRISP & MODERN
+       ========================================================= */
     :root {
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --card-border: #e2e8f0;
+      --card-hover: #cbd5e1;
+      --primary: #059669;
+      --primary-light: #ecfdf5;
+      --primary-glow: rgba(5, 150, 105, 0.18);
+      --indigo: #4f46e5;
+      --indigo-light: #eef2ff;
+      --indigo-glow: rgba(79, 70, 229, 0.18);
+      --cyan: #0284c7;
+      --cyan-light: #f0f9ff;
+      --danger: #dc2626;
+      --danger-light: #fef2f2;
+      --warning: #d97706;
+      --warning-light: #fffbeb;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --input-bg: #f8fafc;
+      --input-border: #cbd5e1;
+      --tag-bg: #e0f2fe;
+      --tag-color: #0369a1;
+      --tag-border: #bae6fd;
+      --font: 'Outfit', 'Anek Bangla', system-ui, -apple-system, sans-serif;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 20px -2px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 30px -4px rgba(0,0,0,0.08);
+    }
+
+    /* Dark Mode variables if user toggles */
+    body.dark-mode {
       --bg: #090d16;
-      --card-bg: rgba(17, 24, 39, 0.75);
+      --card-bg: #111827;
       --card-border: rgba(255, 255, 255, 0.08);
-      --card-hover: rgba(255, 255, 255, 0.14);
+      --card-hover: rgba(255, 255, 255, 0.15);
       --primary: #10b981;
+      --primary-light: rgba(16, 185, 129, 0.15);
       --primary-glow: rgba(16, 185, 129, 0.25);
       --indigo: #6366f1;
+      --indigo-light: rgba(99, 102, 241, 0.15);
       --indigo-glow: rgba(99, 102, 241, 0.25);
       --cyan: #06b6d4;
+      --cyan-light: rgba(6, 182, 212, 0.15);
       --danger: #ef4444;
+      --danger-light: rgba(239, 68, 68, 0.15);
       --warning: #f59e0b;
+      --warning-light: rgba(245, 158, 11, 0.15);
       --text: #f8fafc;
-      --muted: #94a3b8;
-      --font: 'Outfit', 'Anek Bangla', system-ui, sans-serif;
+      --text-muted: #94a3b8;
+      --input-bg: rgba(15, 23, 42, 0.6);
+      --input-border: rgba(255, 255, 255, 0.12);
+      --tag-bg: rgba(56, 189, 248, 0.15);
+      --tag-color: #38bdf8;
+      --tag-border: rgba(56, 189, 248, 0.3);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 20px -2px rgba(0,0,0,0.4);
+      --shadow-lg: 0 10px 30px -4px rgba(0,0,0,0.6);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background: radial-gradient(circle at 10% 10%, #111827 0%, #090d16 60%, #030712 100%);
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.04) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.04) 0px, transparent 50%),
+        radial-gradient(at 50% 100%, rgba(2, 132, 199, 0.03) 0px, transparent 50%);
       color: var(--text);
       font-family: var(--font);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
     }
 
-    /* Top Navbar */
+    /* Top Navigation */
     .navbar {
-      height: 70px;
+      height: 72px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 30px;
-      background: rgba(11, 15, 25, 0.85);
-      backdrop-filter: blur(16px);
+      padding: 0 32px;
+      background: var(--card-bg);
       border-bottom: 1px solid var(--card-border);
       position: sticky;
       top: 0;
       z-index: 100;
+      box-shadow: var(--shadow-sm);
     }
 
     .brand {
       display: flex;
       align-items: center;
       gap: 12px;
-      font-size: 20px;
+      font-size: 21px;
       font-weight: 800;
       letter-spacing: -0.5px;
     }
 
     .brand-icon {
-      width: 42px;
-      height: 42px;
+      width: 44px;
+      height: 44px;
       border-radius: 12px;
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: linear-gradient(135deg, var(--primary), #047857);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 22px;
-      box-shadow: 0 0 20px var(--primary-glow);
+      color: #fff;
+      box-shadow: 0 4px 14px var(--primary-glow);
     }
 
     .brand span {
-      background: linear-gradient(135deg, #34d399, #10b981);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--primary);
     }
 
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
     }
 
     .status-badge {
@@ -93,7 +143,7 @@
       border-radius: 30px;
       font-size: 13px;
       font-weight: 600;
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--input-bg);
       border: 1px solid var(--card-border);
       transition: all 0.3s ease;
       cursor: pointer;
@@ -103,7 +153,7 @@
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: var(--muted);
+      background: var(--text-muted);
       position: relative;
     }
 
@@ -112,23 +162,28 @@
       box-shadow: 0 0 10px #10b981;
     }
     .status-badge.connected {
-      background: rgba(16, 185, 129, 0.12);
-      border-color: rgba(16, 185, 129, 0.3);
-      color: #34d399;
+      background: var(--primary-light);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: var(--primary);
     }
 
     .status-badge.scan_qr .status-dot {
-      background: #f59e0b;
-      box-shadow: 0 0 10px #f59e0b;
+      background: var(--warning);
+      box-shadow: 0 0 10px var(--warning);
     }
     .status-badge.scan_qr {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.3);
-      color: #fbbf24;
+      background: var(--warning-light);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: var(--warning);
     }
 
     .status-badge.disconnected .status-dot {
-      background: #ef4444;
+      background: var(--danger);
+    }
+    .status-badge.disconnected {
+      background: var(--danger-light);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: var(--danger);
     }
 
     .btn {
@@ -144,57 +199,58 @@
       transition: all 0.2s ease;
       border: 1px solid transparent;
       outline: none;
+      text-decoration: none;
     }
 
     .btn-primary {
-      background: linear-gradient(135deg, #10b981, #059669);
+      background: var(--primary);
       color: #fff;
-      box-shadow: 0 4px 15px var(--primary-glow);
+      box-shadow: 0 4px 14px var(--primary-glow);
     }
     .btn-primary:hover {
+      background: #047857;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px var(--primary-glow);
     }
 
     .btn-indigo {
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      background: var(--indigo);
       color: #fff;
-      box-shadow: 0 4px 15px var(--indigo-glow);
+      box-shadow: 0 4px 14px var(--indigo-glow);
     }
     .btn-indigo:hover {
+      background: #4338ca;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px var(--indigo-glow);
     }
 
     .btn-ghost {
-      background: rgba(255, 255, 255, 0.05);
+      background: var(--card-bg);
       border-color: var(--card-border);
       color: var(--text);
     }
     .btn-ghost:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--input-bg);
       border-color: var(--card-hover);
     }
 
     .btn-danger-ghost {
-      background: rgba(239, 68, 68, 0.1);
-      border-color: rgba(239, 68, 68, 0.3);
-      color: #f87171;
+      background: var(--danger-light);
+      border-color: rgba(220, 38, 38, 0.25);
+      color: var(--danger);
     }
     .btn-danger-ghost:hover {
-      background: rgba(239, 68, 68, 0.2);
+      background: rgba(220, 38, 38, 0.15);
     }
 
     /* Container */
     .container {
-      max-width: 1400px;
+      max-width: 1360px;
       width: 100%;
       margin: 0 auto;
-      padding: 24px 30px;
+      padding: 24px 32px;
       flex: 1;
     }
 
-    /* Metric Cards */
+    /* Top Stats Row */
     .metrics-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -206,16 +262,16 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      padding: 20px;
-      backdrop-filter: blur(12px);
+      padding: 18px 22px;
       display: flex;
       align-items: center;
       gap: 16px;
-      transition: transform 0.2s ease, border-color 0.2s ease;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .metric-card:hover {
       transform: translateY(-2px);
-      border-color: var(--card-hover);
+      box-shadow: var(--shadow-md);
     }
 
     .metric-icon {
@@ -227,91 +283,151 @@
       justify-content: center;
       font-size: 22px;
     }
-    .metric-icon.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-    .metric-icon.indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-    .metric-icon.cyan { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
-    .metric-icon.amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .metric-icon.green { background: var(--primary-light); color: var(--primary); }
+    .metric-icon.indigo { background: var(--indigo-light); color: var(--indigo); }
+    .metric-icon.cyan { background: var(--cyan-light); color: var(--cyan); }
+    .metric-icon.amber { background: var(--warning-light); color: var(--warning); }
 
     .metric-info h4 {
       font-size: 13px;
-      color: var(--muted);
+      color: var(--text-muted);
       font-weight: 500;
       margin-bottom: 4px;
     }
     .metric-info .metric-num {
       font-size: 24px;
-      font-weight: 700;
+      font-weight: 800;
       letter-spacing: -0.5px;
     }
 
-    /* Main Grid */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 460px 1fr;
-      gap: 24px;
+    /* SECTION TABS (Two Dedicated Sections) */
+    .section-nav-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      background: var(--card-bg);
+      padding: 8px 12px;
+      border-radius: 16px;
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-sm);
     }
 
-    @media (max-width: 1080px) {
-      .main-grid {
-        grid-template-columns: 1fr;
-      }
+    .section-tabs {
+      display: flex;
+      gap: 8px;
     }
 
-    /* Glass Panels */
+    .tab-btn {
+      padding: 10px 22px;
+      border-radius: 10px;
+      font-size: 14.5px;
+      font-weight: 700;
+      font-family: var(--font);
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      color: var(--text);
+      background: var(--input-bg);
+    }
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px var(--primary-glow);
+    }
+    .tab-btn.active.tab-indigo {
+      background: var(--indigo);
+      box-shadow: 0 4px 12px var(--indigo-glow);
+    }
+
+    .theme-toggle-btn {
+      background: var(--input-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Section Panels */
+    .section-content {
+      display: none;
+      animation: fadeIn 0.25s ease;
+    }
+    .section-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card Panels */
     .panel {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 24px;
-      backdrop-filter: blur(14px);
+      padding: 30px;
+      box-shadow: var(--shadow-sm);
     }
 
     .panel-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
-      padding-bottom: 14px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
       border-bottom: 1px solid var(--card-border);
     }
 
     .panel-title {
-      font-size: 17px;
-      font-weight: 700;
+      font-size: 19px;
+      font-weight: 800;
       display: flex;
       align-items: center;
       gap: 10px;
     }
-
-    .panel-title span {
+    .panel-title span.sub {
       font-size: 13px;
-      color: var(--muted);
+      color: var(--text-muted);
       font-weight: 400;
+      margin-left: 6px;
     }
 
-    /* Form Fields */
+    /* Forms */
     .form-group {
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
     .form-group label {
       display: block;
-      font-size: 13px;
+      font-size: 13.5px;
       font-weight: 600;
-      color: #cbd5e1;
+      color: var(--text);
       margin-bottom: 8px;
     }
-
     .form-group label .required {
       color: var(--danger);
     }
 
     .form-control {
       width: 100%;
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--card-border);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
       border-radius: 12px;
-      padding: 12px 14px;
+      padding: 13px 16px;
       color: var(--text);
       font-family: var(--font);
       font-size: 14px;
@@ -321,50 +437,137 @@
     .form-control:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px var(--primary-glow);
-      background: rgba(15, 23, 42, 0.9);
+      background: var(--card-bg);
     }
 
     textarea.form-control {
-      min-height: 110px;
+      min-height: 120px;
       resize: vertical;
-      line-height: 1.5;
+      line-height: 1.6;
     }
 
     .input-hint {
-      font-size: 11.5px;
-      color: var(--muted);
+      font-size: 12px;
+      color: var(--text-muted);
       margin-top: 6px;
       line-height: 1.4;
     }
 
+    /* =========================================================
+       INTERACTIVE KEYWORD TAG INPUT COMPONENT (NO COMMAS!)
+       ========================================================= */
+    .tags-input-container {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      min-height: 56px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .tags-input-container:focus-within {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: var(--card-bg);
+    }
+
+    .tag-chip {
+      background: var(--tag-bg);
+      color: var(--tag-color);
+      border: 1px solid var(--tag-border);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      animation: popIn 0.15s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.85); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .tag-chip .remove-tag {
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      background: rgba(0,0,0,0.06);
+      transition: all 0.15s ease;
+    }
+    .tag-chip .remove-tag:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .tag-input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .tag-input-field {
+      flex: 1;
+    }
+    .btn-add-tag {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(5, 150, 105, 0.3);
+      padding: 0 18px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .btn-add-tag:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* Slider */
     .slider-container {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 16px;
     }
     .slider-container input[type="range"] {
       flex: 1;
       accent-color: var(--primary);
+      height: 6px;
     }
     .slider-val {
-      min-width: 48px;
-      padding: 4px 8px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      min-width: 52px;
+      padding: 6px 10px;
+      background: var(--primary-light);
+      border: 1px solid rgba(5, 150, 105, 0.3);
       border-radius: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #34d399;
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--primary);
       text-align: center;
     }
 
-    /* Switch */
+    /* Toggle Switch */
     .switch-label {
       display: flex;
       align-items: center;
       justify-content: space-between;
       cursor: pointer;
       user-select: none;
+      padding: 12px 16px;
+      background: var(--input-bg);
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
     }
     .switch {
       position: relative;
@@ -381,7 +584,7 @@
       position: absolute;
       cursor: pointer;
       top: 0; left: 0; right: 0; bottom: 0;
-      background-color: rgba(255, 255, 255, 0.15);
+      background-color: #cbd5e1;
       transition: .3s;
       border-radius: 34px;
     }
@@ -403,199 +606,239 @@
       transform: translateX(20px);
     }
 
-    /* Rule Cards in Management List */
-    .search-bar {
+    /* DATA MANAGEMENT (SECTION 2) */
+    .manage-controls {
       display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .search-input-wrap {
+      flex: 1;
+      min-width: 280px;
+      position: relative;
+    }
+    .search-input-wrap input {
+      padding-left: 40px;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 16px;
     }
 
-    .rules-list {
+    .filter-btn-group {
+      display: flex;
+      gap: 6px;
+      background: var(--input-bg);
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid var(--card-border);
+    }
+    .filter-btn {
+      padding: 6px 14px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+    .filter-btn.active {
+      background: var(--card-bg);
+      color: var(--text);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    /* Rules Grid */
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 18px;
+    }
+
+    @media (max-width: 640px) {
+      .rules-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .rule-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      max-height: 650px;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
-    .rules-list::-webkit-scrollbar { width: 6px; }
-    .rules-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-
-    .rule-card {
-      background: rgba(15, 23, 42, 0.6);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 16px;
+      box-shadow: var(--shadow-sm);
       transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      position: relative;
     }
     .rule-card:hover {
+      box-shadow: var(--shadow-md);
       border-color: var(--card-hover);
-      background: rgba(15, 23, 42, 0.85);
     }
     .rule-card.inactive {
-      opacity: 0.55;
+      opacity: 0.6;
+      background: var(--input-bg);
     }
 
-    .rule-top {
+    .rule-card-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
+      gap: 10px;
     }
-    .rule-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #f1f5f9;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+
+    .rule-card-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--text);
     }
 
     .badge {
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-size: 11px;
-      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 700;
     }
     .badge-delay {
-      background: rgba(99, 102, 241, 0.15);
-      color: #a5b4fc;
-      border: 1px solid rgba(99, 102, 241, 0.3);
+      background: var(--indigo-light);
+      color: var(--indigo);
+      border: 1px solid rgba(79, 70, 229, 0.2);
     }
     .badge-active {
-      background: rgba(16, 185, 129, 0.15);
-      color: #6ee7b7;
+      background: var(--primary-light);
+      color: var(--primary);
     }
     .badge-inactive {
-      background: rgba(239, 68, 68, 0.15);
-      color: #fca5a5;
+      background: var(--danger-light);
+      color: var(--danger);
     }
 
-    .keywords-wrap {
+    .card-tags-list {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
     }
-    .kw-tag {
-      background: rgba(255, 255, 255, 0.08);
-      color: #38bdf8;
-      border: 1px solid rgba(56, 189, 248, 0.2);
-      border-radius: 6px;
+    .card-tag {
+      background: var(--tag-bg);
+      color: var(--tag-color);
+      border: 1px solid var(--tag-border);
       padding: 3px 8px;
+      border-radius: 6px;
       font-size: 12px;
-      font-weight: 500;
+      font-weight: 600;
     }
 
-    .rule-reply-preview {
-      background: rgba(2, 6, 23, 0.5);
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #cbd5e1;
-      line-height: 1.45;
+    .rule-card-body {
+      background: var(--input-bg);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13.5px;
+      line-height: 1.5;
+      color: var(--text);
       border-left: 3px solid var(--primary);
       white-space: pre-wrap;
+      max-height: 150px;
+      overflow-y: auto;
     }
 
-    .rule-bottom {
+    .rule-card-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 4px;
-      padding-top: 8px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: auto;
+      padding-top: 12px;
+      border-top: 1px solid var(--card-border);
     }
 
-    .rule-actions {
+    .card-actions {
       display: flex;
-      gap: 6px;
+      gap: 8px;
     }
 
-    /* Simulator / Test Playground */
-    .simulator-container {
-      margin-top: 24px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 24px;
-      backdrop-filter: blur(14px);
+    /* SIMULATOR (SECTION 3) */
+    .simulator-wrap {
+      max-width: 700px;
+      margin: 0 auto;
     }
 
     .chat-box {
-      max-width: 650px;
-      margin: 0 auto;
-      background: #0b141a;
-      border-radius: 16px;
-      border: 1px solid #202c33;
+      background: #efeae2;
+      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--shadow-lg);
     }
 
     .chat-header {
-      background: #202c33;
-      padding: 12px 18px;
+      background: #075e54;
+      padding: 14px 20px;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
+      color: #fff;
     }
     .chat-avatar {
-      width: 38px;
-      height: 38px;
+      width: 42px;
+      height: 42px;
       border-radius: 50%;
-      background: #00a884;
+      background: #25d366;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 20px;
+      color: #fff;
     }
     .chat-header-info h5 {
-      font-size: 14px;
-      font-weight: 600;
-      color: #e9edef;
+      font-size: 15px;
+      font-weight: 700;
     }
     .chat-header-info p {
-      font-size: 11px;
-      color: #8696a0;
+      font-size: 11.5px;
+      color: rgba(255, 255, 255, 0.85);
     }
 
     .chat-messages {
-      height: 280px;
-      padding: 18px;
+      height: 340px;
+      padding: 20px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      background: radial-gradient(circle at center, #111b21 0%, #0c1317 100%);
+      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+      background-size: 16px 16px;
+      background-color: #f0f2f5;
     }
 
     .chat-bubble {
-      max-width: 75%;
+      max-width: 80%;
       padding: 10px 14px;
       border-radius: 12px;
-      font-size: 13.5px;
-      line-height: 1.45;
-      position: relative;
+      font-size: 14px;
+      line-height: 1.5;
       animation: popIn 0.2s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
     .bubble-user {
       align-self: flex-end;
-      background: #005c4b;
-      color: #e9edef;
+      background: #d9fdd3;
+      color: #111b21;
       border-bottom-right-radius: 2px;
     }
-
     .bubble-agent {
       align-self: flex-start;
-      background: #202c33;
-      color: #e9edef;
+      background: #ffffff;
+      color: #111b21;
       border-bottom-left-radius: 2px;
     }
 
@@ -603,16 +846,17 @@
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 8px 12px;
-      background: #202c33;
+      padding: 10px 14px;
+      background: #ffffff;
       border-radius: 12px;
       align-self: flex-start;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     }
     .typing-dot {
-      width: 6px;
-      height: 6px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      background: #8696a0;
+      background: #64748b;
       animation: bounce 1.2s infinite ease-in-out;
     }
     .typing-dot:nth-child(2) { animation-delay: 0.2s; }
@@ -624,37 +868,46 @@
 
     .chat-input-bar {
       display: flex;
-      padding: 10px 14px;
-      background: #202c33;
+      padding: 12px 16px;
+      background: #f0f2f5;
+      border-top: 1px solid #e2e8f0;
       gap: 10px;
     }
     .chat-input {
       flex: 1;
-      background: #2a3942;
-      border: none;
-      border-radius: 8px;
-      padding: 10px 14px;
-      color: #e9edef;
+      background: #fff;
+      border: 1px solid #cbd5e1;
+      border-radius: 24px;
+      padding: 12px 20px;
+      color: #111b21;
       font-family: var(--font);
-      font-size: 13.5px;
+      font-size: 14px;
       outline: none;
+    }
+    .chat-input:focus {
+      border-color: #075e54;
     }
     .chat-send-btn {
       background: #00a884;
       color: #fff;
       border: none;
-      border-radius: 8px;
-      padding: 0 16px;
+      border-radius: 24px;
+      padding: 0 20px;
       cursor: pointer;
-      font-weight: 600;
+      font-weight: 700;
+      font-size: 14px;
+      transition: background 0.2s ease;
+    }
+    .chat-send-btn:hover {
+      background: #075e54;
     }
 
-    /* Modal */
+    /* Modals */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.7);
-      backdrop-filter: blur(8px);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(6px);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -668,22 +921,23 @@
       pointer-events: auto;
     }
     .modal-card {
-      background: #111827;
+      background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 28px;
+      padding: 30px;
       max-width: 480px;
       width: 90%;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      box-shadow: var(--shadow-lg);
       position: relative;
       text-align: center;
+      animation: popIn 0.2s ease;
     }
     .modal-close {
       position: absolute;
       top: 18px; right: 18px;
       background: none;
       border: none;
-      color: var(--muted);
+      color: var(--text-muted);
       font-size: 20px;
       cursor: pointer;
     }
@@ -699,14 +953,14 @@
       z-index: 999;
     }
     .toast {
-      background: #1e293b;
+      background: var(--text);
       color: #fff;
       padding: 12px 20px;
       border-radius: 10px;
       border-left: 4px solid var(--primary);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
       font-size: 13.5px;
-      font-weight: 500;
+      font-weight: 600;
       animation: slideIn 0.3s ease;
     }
     .toast.error { border-left-color: var(--danger); }
@@ -719,7 +973,7 @@
 </head>
 <body>
 
-  <!-- Top Navigation -->
+  <!-- Top Navbar -->
   <header class="navbar">
     <div class="brand">
       <div class="brand-icon">🤖</div>
@@ -745,8 +999,8 @@
 
   <!-- Container -->
   <main class="container">
-    
-    <!-- Metrics Row -->
+
+    <!-- Top Stats Row -->
     <section class="metrics-grid">
       <div class="metric-card">
         <div class="metric-icon green">🎯</div>
@@ -778,37 +1032,72 @@
       </div>
     </section>
 
-    <!-- Main Two-Column Layout -->
-    <div class="main-grid">
-      
-      <!-- Left Column: Input / Training Zone -->
-      <div class="panel">
+    <!-- SECTION NAVIGATION (2 Main Dedicated Sections + Live Simulator) -->
+    <div class="section-nav-wrapper">
+      <div class="section-tabs">
+        <button class="tab-btn active" id="tabInput" onclick="switchSection('input')">
+          <span>✍️ ১. ডাটা ইনপুট (ট্রেনিং)</span>
+        </button>
+        <button class="tab-btn" id="tabManage" onclick="switchSection('manage')">
+          <span>📊 ২. ডাটা ম্যানেজমেন্ট (তালিকা)</span>
+          <span id="tabCountBadge" style="background:rgba(0,0,0,0.06); padding:2px 8px; border-radius:12px; font-size:12px;">0</span>
+        </button>
+        <button class="tab-btn tab-indigo" id="tabSim" onclick="switchSection('sim')">
+          <span>🧪 ৩. বট সিমুলেটর (টেস্ট)</span>
+        </button>
+      </div>
+
+      <!-- Theme Switch (Day Mode is default) -->
+      <button class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">
+        <span>☀️ ডে মোড</span>
+      </button>
+    </div>
+
+    <!-- =========================================================
+         SECTION 1: DATA INPUT / TRAINING ZONE
+         ========================================================= -->
+    <section id="sectionInput" class="section-content active">
+      <div class="panel" style="max-width: 850px; margin: 0 auto;">
         <div class="panel-header">
           <div class="panel-title">
-            <span style="font-size:18px;">✍️</span> নতুন অটো-রিপ্লাই ট্রেইন করুন
+            <span>✍️</span> নতুন অটো-রিপ্লাই ট্রেইন করুন
+            <span class="sub" id="formModeText">— নতুন নিয়ম যোগ করার ফর্ম</span>
           </div>
-          <button id="cancelEditBtn" class="btn btn-ghost" style="display:none; padding:4px 10px; font-size:12px;" onclick="resetForm()">বাতিল</button>
+          <button id="cancelEditBtn" class="btn btn-ghost" style="display:none;" onclick="resetForm()">বাতিল</button>
         </div>
 
         <form id="ruleForm" onsubmit="handleSaveRule(event)">
           <input type="hidden" id="editRuleId" value="">
 
           <div class="form-group">
-            <label>রুল শিরোনাম বা ক্যাটাগরি</label>
+            <label>রুল শিরোনাম বা টপিক <span class="required">*</span></label>
             <input type="text" id="ruleTitle" class="form-control" placeholder="যেমন: কোর্স ফি ও ভর্তি তথ্য" required>
-            <div class="input-hint">আপনার সুবিধার্থে এই রুলটির একটি নাম বা টপিক দিন।</div>
+            <div class="input-hint">আপনার সুবিধার্থে এই অটো-রিপ্লাইটির একটি নাম দিন।</div>
+          </div>
+
+          <!-- INTERACTIVE KEYWORD TAG INPUT (NO COMMAS NEEDED) -->
+          <div class="form-group">
+            <label>টার্গেট কি-ওয়ার্ডসমূহ (Tag Add System) <span class="required">*</span></label>
+            
+            <div class="tags-input-container" id="tagsContainer" onclick="focusTagInput()">
+              <!-- Dynamic keyword tags render here -->
+            </div>
+
+            <div class="tag-input-row">
+              <input type="text" id="tagInputField" class="form-control tag-input-field" 
+                     placeholder="শব্দ বা বাক্য লিখুন (যেমন: কোর্স ফি, কত টাকা, price) এবং Enter প্রেস করুন..."
+                     onkeydown="handleTagKeydown(event)">
+              <button type="button" class="btn-add-tag" onclick="addTagFromInput()">➕ যুক্ত করুন</button>
+            </div>
+            <div class="input-hint">
+              💡 <b>সহজ নিয়ম:</b> কোনো কমা (,) দেওয়া লাগবে না! বক্সে শব্দটি লিখে <b>Enter</b> প্রেস করলেই ট্যাগ যোগ হয়ে যাবে। ভুল হলে ট্যাগের <b>✕</b> বাটনে ক্লিক করে মুছে দিতে পারবেন।
+            </div>
           </div>
 
           <div class="form-group">
-            <label>টার্গেট কি-ওয়ার্ডসমূহ <span class="required">*</span></label>
-            <input type="text" id="ruleKeywords" class="form-control" placeholder="যেমন: কোর্স, ফি, কত টাকা, খরচ, দাম, price" required>
-            <div class="input-hint">কমা (,) দিয়ে একাধিক শব্দ যোগ করুন। স্টুডেন্টের পাঠানো মেসেজে এর যেকোনো একটি শব্দ থাকলেই স্বয়ংক্রিয়ভাবে রিপ্লাই চলে যাবে।</div>
-          </div>
-
-          <div class="form-group">
-            <label>স্বয়ংক্রিয় রিপ্লাই টেক্সট <span class="required">*</span></label>
-            <textarea id="ruleReply" class="form-control" placeholder="স্টুডেন্টকে যে উত্তরটি দেওয়া হবে তা এখানে লিখুন..." required></textarea>
-            <div class="input-hint">লিঙ্ক, কোর্সের ফি বা বিস্তারিত বিবরণ সুন্দরভাবে প্যারাগ্রাফ আকারে লিখতে পারেন।</div>
+            <label>স্বয়ংক্রিয় রিপ্লাই মেসেজ <span class="required">*</span></label>
+            <textarea id="ruleReply" class="form-control" placeholder="স্টুডেন্টকে যে উত্তরটি দেওয়া হবে তা এখানে বিস্তারিত লিখুন..." required></textarea>
+            <div class="input-hint">কোর্সের ফি, লিঙ্ক, যোগাযোগের নম্বর বা যেকোনো বিবরণ সুন্দরভাবে লিখতে পারেন।</div>
           </div>
 
           <div class="form-group">
@@ -817,12 +1106,12 @@
               <input type="range" id="ruleDelay" min="1" max="10" step="1" value="3" oninput="updateDelayDisplay(this.value)">
               <div class="slider-val" id="delayValText">3s</div>
             </div>
-            <div class="input-hint">মেসেজ পাওয়ার পর ঠিক কত সেকেন্ড অপেক্ষা করে মানুষের মতো "Typing..." দেখিয়ে রিপ্লাই দেবে।</div>
+            <div class="input-hint">মেসেজ পাওয়ার পর ঠিক কত সেকেন্ড অপেক্ষা করে মানুষের মতো "Typing..." দেখিয়ে রিপ্লাই পাঠাবে।</div>
           </div>
 
           <div class="form-group">
             <label class="switch-label">
-              <span>রুলটি তাৎক্ষণিক সক্রিয় (Active) রাখুন</span>
+              <span><b>রুলটি অবিলম্বে সক্রিয় (Active) রাখুন</b></span>
               <div class="switch">
                 <input type="checkbox" id="ruleActive" checked>
                 <span class="slider"></span>
@@ -830,65 +1119,82 @@
             </label>
           </div>
 
-          <div style="display:flex; gap:10px; margin-top:24px;">
-            <button type="submit" id="saveBtn" class="btn btn-primary" style="flex:1;">
-              <span>💾 রুলটি সেভ করুন</span>
+          <div style="display:flex; gap:12px; margin-top:28px;">
+            <button type="submit" id="saveBtn" class="btn btn-primary" style="flex:1; padding:14px; font-size:15px;">
+              <span>💾 রুলটি ডাটাবেজে সেভ করুন</span>
             </button>
-            <button type="button" class="btn btn-ghost" onclick="resetForm()">রিসেট</button>
+            <button type="button" class="btn btn-ghost" style="padding:14px 20px;" onclick="resetForm()">রিসেট</button>
           </div>
         </form>
       </div>
+    </section>
 
-      <!-- Right Column: Rules Management -->
+    <!-- =========================================================
+         SECTION 2: DATA MANAGEMENT ZONE
+         ========================================================= -->
+    <section id="sectionManage" class="section-content">
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
-            <span style="font-size:18px;">📚</span> ট্রেইন করা কি-ওয়ার্ড ও রুলস তালিকা
+            <span>📊</span> ডাটা ম্যানেজমেন্ট
+            <span class="sub">— সংরক্ষিত সকল অটো-রিপ্লাই ও কি-ওয়ার্ড তালিকা</span>
           </div>
-          <div style="font-size:12px; color:var(--muted);" id="rulesCountBadge">০ টি রুল</div>
+
+          <button class="btn btn-primary" onclick="switchSection('input')">
+            <span>➕ নতুন রুল যোগ করুন</span>
+          </button>
         </div>
 
-        <div class="search-bar">
-          <input type="text" id="searchInput" class="form-control" placeholder="🔍 কি-ওয়ার্ড বা শিরোনাম দিয়ে খুঁজুন..." oninput="renderRulesList()">
-        </div>
+        <!-- Search & Filter Controls -->
+        <div class="manage-controls">
+          <div class="search-input-wrap">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="form-control" placeholder="কি-ওয়ার্ড, শিরোনাম বা উত্তরের টেক্সট দিয়ে খুঁজুন..." oninput="renderRulesList()">
+          </div>
 
-        <div class="rules-list" id="rulesListContainer">
-          <!-- Dynamic Rules Render Here -->
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Simulator Section -->
-    <div class="simulator-container">
-      <div class="panel-header">
-        <div class="panel-title">
-          <span style="font-size:18px;">🧪</span> WhatsApp বট সিমুলেটর (লাইভ টেস্ট জোন)
-        </div>
-        <span style="font-size:13px; color:var(--muted);">স্টুডেন্টের মতো মেসেজ লিখে টেস্ট করুন এজেন্ট কেমন উত্তর দেয়</span>
-      </div>
-
-      <div class="chat-box">
-        <div class="chat-header">
-          <div class="chat-avatar">🤖</div>
-          <div class="chat-header-info">
-            <h5>Agent Riad (Automated Bot)</h5>
-            <p id="chatSubStatus">অনলাইন · কি-ওয়ার্ড ডিটেকশন সক্রিয়</p>
+          <div class="filter-btn-group">
+            <button class="filter-btn active" onclick="setFilter('all', this)">সবগুলো</button>
+            <button class="filter-btn" onclick="setFilter('active', this)">শুধুমাত্র সক্রিয়</button>
+            <button class="filter-btn" onclick="setFilter('inactive', this)">নিষ্ক্রিয়</button>
           </div>
         </div>
 
-        <div class="chat-messages" id="chatMessages">
-          <div class="chat-bubble bubble-agent">
-            আসসালামু আলাইকুম! আমি Agent Riad। আপনি যেকোনো প্রশ্ন লিখে টেস্ট করতে পারেন।
-          </div>
-        </div>
-
-        <div class="chat-input-bar">
-          <input type="text" id="simulatorInput" class="chat-input" placeholder="যেমন: ভাইয়া কোর্স ফি কত? অথবা কোর্সে ভর্তি হব কিভাবে?" onkeydown="if(event.key==='Enter') sendSimulatorMessage()">
-          <button class="chat-send-btn" onclick="sendSimulatorMessage()">টেস্ট পাঠান</button>
+        <!-- Rules Grid -->
+        <div class="rules-grid" id="rulesGridContainer">
+          <!-- Dynamic Rule Cards Render Here -->
         </div>
       </div>
-    </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 3: BOT SIMULATOR (LIVE TEST PLAYGROUND)
+         ========================================================= -->
+    <section id="sectionSim" class="section-content">
+      <div class="simulator-wrap">
+        <div class="chat-box">
+          <div class="chat-header">
+            <div class="chat-avatar">🤖</div>
+            <div class="chat-header-info">
+              <h5>Agent Riad — WhatsApp AI Bot</h5>
+              <p>লাইভ টেস্ট জোন · কি-ওয়ার্ড ডিটেকশন ও টাইপিং টেস্ট</p>
+            </div>
+          </div>
+
+          <div class="chat-messages" id="chatMessages">
+            <div class="chat-bubble bubble-agent">
+              আসসালামু আলাইকুম! আমি Agent Riad। আপনি যেকোনো প্রশ্ন লিখে টেস্ট করতে পারেন।
+            </div>
+          </div>
+
+          <div class="chat-input-bar">
+            <input type="text" id="simulatorInput" class="chat-input" 
+                   placeholder="যেমন: ভাইয়া কোর্স ফি কত? অথবা Course price please?" 
+                   onkeydown="if(event.key==='Enter') sendSimulatorMessage()">
+            <button class="chat-send-btn" onclick="sendSimulatorMessage()">পাঠান</button>
+          </div>
+        </div>
+      </div>
+    </section>
 
   </main>
 
@@ -897,16 +1203,16 @@
     <div class="modal-card">
       <button class="modal-close" onclick="closeQrModal()">✕</button>
       <h3 style="margin-bottom:8px; font-size:18px;">📲 WhatsApp লিংক করুন</h3>
-      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+      <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
         ১. WhatsApp ওপেন করুন ➔ <b>Linked Devices</b><br>
         ২. <b>Link a Device</b>-এ ক্লিক করে স্ক্যান করুন:
       </p>
 
-      <div id="qrImageWrap" style="display:inline-block; padding:12px; background:#fff; border-radius:12px; margin-bottom:14px; min-width:240px; min-height:240px; display:flex; align-items:center; justify-content:center;">
+      <div id="qrImageWrap" style="display:inline-block; padding:12px; background:#fff; border-radius:12px; margin-bottom:14px; min-width:240px; min-height:240px; display:flex; align-items:center; justify-content:center; border: 1px solid var(--card-border);">
         <span style="color:#64748b; font-size:13px;">QR কোড লোড হচ্ছে...</span>
       </div>
 
-      <p id="qrFooterText" style="font-size:12px; color:var(--muted);">প্রতি ৫ সেকেন্ডে স্ট্যাটাস আপডেট হচ্ছে...</p>
+      <p id="qrFooterText" style="font-size:12px; color:var(--text-muted);">প্রতি ৫ সেকেন্ডে স্ট্যাটাস আপডেট হচ্ছে...</p>
     </div>
   </div>
 
@@ -969,6 +1275,8 @@
     let LOCAL_API = localStorage.getItem('agent_local_url') || 'http://localhost:3001';
 
     let allRules = [];
+    let currentTags = []; // Array of keyword strings for the active form
+    let currentFilter = 'all';
     let isGatewayConnected = false;
     let localSettings = {
       defaultDelay: 3,
@@ -989,11 +1297,112 @@
       }, 4000);
     }
 
+    // Theme Toggle (Default is Day Mode)
+    function toggleTheme() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      const btn = document.getElementById('themeBtn');
+      if (isDark) {
+        btn.innerHTML = '<span>🌙 ডার্ক মোড</span>';
+        localStorage.setItem('agent_theme', 'dark');
+      } else {
+        btn.innerHTML = '<span>☀️ ডে মোড</span>';
+        localStorage.setItem('agent_theme', 'light');
+      }
+    }
+
+    // Section Switching (Tab 1: Input, Tab 2: Manage, Tab 3: Sim)
+    function switchSection(sectionId) {
+      document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+      if (sectionId === 'input') {
+        document.getElementById('sectionInput').classList.add('active');
+        document.getElementById('tabInput').classList.add('active');
+      } else if (sectionId === 'manage') {
+        document.getElementById('sectionManage').classList.add('active');
+        document.getElementById('tabManage').classList.add('active');
+        renderRulesList();
+      } else if (sectionId === 'sim') {
+        document.getElementById('sectionSim').classList.add('active');
+        document.getElementById('tabSim').classList.add('active');
+      }
+      window.scrollTo({ top: 140, behavior: 'smooth' });
+    }
+
+    // Delay Display
     function updateDelayDisplay(val) {
       document.getElementById('delayValText').innerText = val + 's';
     }
 
-    // Status Checker
+    // =========================================================
+    // TAG INPUT SYSTEM (NO COMMAS, CROSS TO REMOVE)
+    // =========================================================
+    function focusTagInput() {
+      document.getElementById('tagInputField').focus();
+    }
+
+    function handleTagKeydown(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addTagFromInput();
+      } else if (e.key === 'Backspace' && !e.target.value && currentTags.length > 0) {
+        // Backspace on empty input removes last tag
+        removeTag(currentTags.length - 1);
+      }
+    }
+
+    function addTagFromInput() {
+      const input = document.getElementById('tagInputField');
+      let val = input.value.trim();
+      if (!val) return;
+
+      // In case user pasted comma-separated text, split them cleanly
+      const parts = val.split(',').map(s => s.trim()).filter(s => s.length > 0);
+      for (const item of parts) {
+        // Normalize: case-insensitive duplicate check
+        const exists = currentTags.some(t => t.toLowerCase() === item.toLowerCase());
+        if (!exists) {
+          currentTags.push(item);
+        }
+      }
+      input.value = '';
+      renderTagChips();
+    }
+
+    function removeTag(index) {
+      currentTags.splice(index, 1);
+      renderTagChips();
+    }
+
+    function renderTagChips() {
+      const container = document.getElementById('tagsContainer');
+      if (currentTags.length === 0) {
+        container.innerHTML = `
+          <span style="color:var(--text-muted); font-size:13.5px; padding:4px 6px;">
+            কোনো কি-ওয়ার্ড ট্যাগ যোগ করা হয়নি। নিচে লিখে '➕ যুক্ত করুন' বা Enter চাপুন।
+          </span>
+        `;
+        return;
+      }
+
+      container.innerHTML = currentTags.map((tag, idx) => `
+        <span class="tag-chip">
+          <span>${escapeHtml(tag)}</span>
+          <span class="remove-tag" onclick="event.stopPropagation(); removeTag(${idx})">✕</span>
+        </span>
+      `).join('');
+    }
+
+    function setTagsFromString(kwStr) {
+      if (!kwStr) {
+        currentTags = [];
+      } else {
+        currentTags = String(kwStr).split(',').map(k => k.trim()).filter(k => k.length > 0);
+      }
+      renderTagChips();
+    }
+
+    // Gateway Status
     async function checkGatewayStatus() {
       const badge = document.getElementById('statusBadge');
       const text = document.getElementById('statusText');
@@ -1008,34 +1417,32 @@
             badge.className = 'status-badge connected';
             text.innerText = `WhatsApp: Online (${data.phone})`;
             phoneDisplay.innerText = data.phone || 'Online';
-            phoneDisplay.style.color = '#34d399';
+            phoneDisplay.style.color = 'var(--primary)';
           } else if (data.hasQR || data.status === 'scan_qr') {
             isGatewayConnected = false;
             badge.className = 'status-badge scan_qr';
             text.innerText = '📲 QR কোড স্ক্যান করুন';
             phoneDisplay.innerText = 'স্ক্যান প্রয়োজন';
-            phoneDisplay.style.color = '#fbbf24';
+            phoneDisplay.style.color = 'var(--warning)';
           } else {
             isGatewayConnected = false;
             badge.className = 'status-badge disconnected';
             text.innerText = 'সার্ভার চালু হচ্ছে...';
             phoneDisplay.innerText = 'ইনিশিয়ালাইজিং';
-            phoneDisplay.style.color = '#94a3b8';
+            phoneDisplay.style.color = 'var(--text-muted)';
           }
           return;
         }
-      } catch (e) {
-        // Local server is not running
-      }
+      } catch (e) {}
 
       isGatewayConnected = false;
       badge.className = 'status-badge disconnected';
       text.innerText = 'Gateway: অফলাইন';
       phoneDisplay.innerText = 'অফলাইন';
-      phoneDisplay.style.color = '#ef4444';
+      phoneDisplay.style.color = 'var(--danger)';
     }
 
-    // Fetch Rules (Tries Local Gateway first, falls back to Cloudflare Worker)
+    // Fetch Rules
     async function fetchRules() {
       let loaded = false;
 
@@ -1051,7 +1458,7 @@
         }
       } catch (e) {}
 
-      // 2. If not loaded from local, fetch from Cloudflare Worker
+      // 2. Fallback to Cloudflare Worker
       if (!loaded) {
         try {
           const res = await fetch(`${WORKER_API}/api/agent/rules`, { signal: AbortSignal.timeout(4000) });
@@ -1065,7 +1472,6 @@
         } catch (e) {}
       }
 
-      // If still empty and no network, use starter fallback
       if (!loaded && allRules.length === 0) {
         const local = localStorage.getItem('agent_cached_rules');
         if (local) {
@@ -1076,7 +1482,7 @@
               id: 1,
               title: 'কোর্স ও ফি সম্পর্কিত',
               keywords: 'কোর্স, ফি, কত টাকা, খরচ, দাম, price, fee, cost, admission',
-              reply_text: 'আসসালামু আলাইকুম! আমাদের সকল কোর্স ও ফি সম্পর্কিত বিস্তারিত তথ্য জানতে ভিজিট করুন: https://visionplusbd.com/All_Courses.html অথবা আমাদের সাথে সরাসরি কথা বলতে কল করুন।',
+              reply_text: 'আসসালামু আলাইকুম! আমাদের সকল কোর্স ও ফি সম্পর্কিত বিস্তারিত তথ্য জানতে ভিজিট করুন: https://visionplusbd.com/All_Courses.html অথবা সরাসরি কল করুন।',
               delay_seconds: 3,
               is_active: 1
             },
@@ -1099,6 +1505,7 @@
 
     function updateMetrics() {
       document.getElementById('totalRulesCount').innerText = allRules.length;
+      document.getElementById('tabCountBadge').innerText = allRules.length;
       const activeCount = allRules.filter(r => r.is_active !== 0 && r.is_active !== false).length;
       document.getElementById('activeRulesCount').innerText = activeCount;
 
@@ -1108,24 +1515,34 @@
       }
     }
 
+    function setFilter(type, btn) {
+      currentFilter = type;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderRulesList();
+    }
+
     function renderRulesList() {
-      const container = document.getElementById('rulesListContainer');
+      const container = document.getElementById('rulesGridContainer');
       const search = document.getElementById('searchInput').value.toLowerCase().trim();
 
       const filtered = allRules.filter(r => {
+        const isActive = r.is_active !== 0 && r.is_active !== false;
+        if (currentFilter === 'active' && !isActive) return false;
+        if (currentFilter === 'inactive' && isActive) return false;
+
         const title = String(r.title || '').toLowerCase();
         const kw = String(r.keywords || '').toLowerCase();
         const reply = String(r.reply_text || '').toLowerCase();
         return !search || title.includes(search) || kw.includes(search) || reply.includes(search);
       });
 
-      document.getElementById('rulesCountBadge').innerText = `${filtered.length} টি রুল প্রদর্শিত`;
-
       if (filtered.length === 0) {
         container.innerHTML = `
-          <div style="text-align:center; padding:50px 20px; color:var(--muted);">
-            <div style="font-size:36px; margin-bottom:8px;">🔍</div>
-            <p>কোনো অটো-রিপ্লাই রুল পাওয়া যায়নি।</p>
+          <div style="grid-column: 1 / -1; text-align:center; padding:60px 20px; color:var(--text-muted);">
+            <div style="font-size:42px; margin-bottom:10px;">🔍</div>
+            <h4 style="font-size:16px; color:var(--text); margin-bottom:4px;">কোনো অটো-রিপ্লাই রুল পাওয়া যায়নি</h4>
+            <p style="font-size:13px;">নতুন রুল যোগ করতে "ডাটা ইনপুট" সেকশনে যান।</p>
           </div>
         `;
         return;
@@ -1137,11 +1554,13 @@
 
         return `
           <div class="rule-card ${isActive ? '' : 'inactive'}" id="card_${r.id}">
-            <div class="rule-top">
-              <div class="rule-title">
-                ${escapeHtml(r.title || 'Untitled Rule')}
-                <span class="badge badge-delay">⏱️ ${r.delay_seconds || 3}s</span>
-                <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'সক্রিয়' : 'নিষ্ক্রিয়'}</span>
+            <div class="rule-card-header">
+              <div>
+                <div class="rule-card-title">${escapeHtml(r.title || 'Untitled Rule')}</div>
+                <div style="margin-top:4px;">
+                  <span class="badge badge-delay">⏱️ ${r.delay_seconds || 3}s ডিলে</span>
+                  <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'সক্রিয়' : 'নিষ্ক্রিয়'}</span>
+                </div>
               </div>
               <div class="switch">
                 <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleRuleActive(${r.id})">
@@ -1149,17 +1568,17 @@
               </div>
             </div>
 
-            <div class="keywords-wrap">
-              ${kwList.map(kw => `<span class="kw-tag">${escapeHtml(kw)}</span>`).join('')}
+            <div class="card-tags-list">
+              ${kwList.map(kw => `<span class="card-tag">🏷️ ${escapeHtml(kw)}</span>`).join('')}
             </div>
 
-            <div class="rule-reply-preview">${escapeHtml(r.reply_text || '')}</div>
+            <div class="rule-card-body">${escapeHtml(r.reply_text || '')}</div>
 
-            <div class="rule-bottom">
-              <span style="font-size:11px; color:var(--muted);">ID: #${r.id}</span>
-              <div class="rule-actions">
-                <button class="btn btn-ghost" style="padding:4px 10px; font-size:12px;" onclick="editRule(${r.id})">✏️ এডিট</button>
-                <button class="btn btn-danger-ghost" style="padding:4px 10px; font-size:12px;" onclick="deleteRule(${r.id})">🗑️ ডিলিট</button>
+            <div class="rule-card-footer">
+              <span style="font-size:11.5px; color:var(--text-muted); font-weight:600;">ID: #${r.id}</span>
+              <div class="card-actions">
+                <button class="btn btn-ghost" style="padding:5px 12px; font-size:12.5px;" onclick="editRule(${r.id})">✏️ এডিট</button>
+                <button class="btn btn-danger-ghost" style="padding:5px 12px; font-size:12.5px;" onclick="deleteRule(${r.id})">🗑️ ডিলিট</button>
               </div>
             </div>
           </div>
@@ -1173,40 +1592,49 @@
       return div.innerHTML;
     }
 
-    // Save Rule (Add or Edit)
+    // Save Rule
     async function handleSaveRule(e) {
       e.preventDefault();
       const id = document.getElementById('editRuleId').value;
       const title = document.getElementById('ruleTitle').value.trim();
-      const keywords = document.getElementById('ruleKeywords').value.trim();
       const reply = document.getElementById('ruleReply').value.trim();
       const delay = Number(document.getElementById('ruleDelay').value) || 3;
       const isActive = document.getElementById('ruleActive').checked ? 1 : 0;
 
+      // If user forgot to click add on the input field but typed text
+      const pendingTag = document.getElementById('tagInputField').value.trim();
+      if (pendingTag) {
+        addTagFromInput();
+      }
+
+      if (currentTags.length === 0) {
+        showToast('⚠️ অনুগ্রহ করে অন্তত একটি কি-ওয়ার্ড ট্যাগ যোগ করুন!', 'error');
+        focusTagInput();
+        return;
+      }
+
+      const keywordsStr = currentTags.join(', ');
+
       const payload = {
         title,
-        keywords,
+        keywords: keywordsStr,
         reply_text: reply,
         delay_seconds: delay,
         is_active: isActive
       };
 
-      // Send to Local Gateway & Cloudflare Worker
-      let success = false;
-
-      // 1. Try local server
+      // 1. Send to Local Gateway
       try {
         const url = id ? `${LOCAL_API}/api/rules/${id}` : `${LOCAL_API}/api/rules`;
         const method = id ? 'PUT' : 'POST';
-        const res = await fetch(url, {
+        await fetch(url, {
           method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        if (res.ok) success = true;
       } catch (e) {}
 
-      // 2. Try Cloudflare Worker
+      // 2. Send to Cloudflare Worker
       try {
         const wUrl = id ? `${WORKER_API}/api/agent/rules/${id}` : `${WORKER_API}/api/agent/rules`;
         const method = id ? 'PUT' : 'POST';
@@ -1217,7 +1645,7 @@
         });
       } catch (e) {}
 
-      // Optimistic update in UI
+      // Optimistic update
       if (id) {
         const idx = allRules.findIndex(r => String(r.id) === String(id));
         if (idx !== -1) {
@@ -1233,7 +1661,9 @@
       localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
       resetForm();
       updateMetrics();
-      renderRulesList();
+
+      // Automatically switch to management section so user sees the newly saved rule!
+      switchSection('manage');
     }
 
     function editRule(id) {
@@ -1242,23 +1672,31 @@
 
       document.getElementById('editRuleId').value = rule.id;
       document.getElementById('ruleTitle').value = rule.title || '';
-      document.getElementById('ruleKeywords').value = rule.keywords || '';
       document.getElementById('ruleReply').value = rule.reply_text || '';
       document.getElementById('ruleDelay').value = rule.delay_seconds || 3;
       updateDelayDisplay(rule.delay_seconds || 3);
       document.getElementById('ruleActive').checked = rule.is_active !== 0 && rule.is_active !== false;
 
+      // Populate interactive tags
+      setTagsFromString(rule.keywords || '');
+
       document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+      document.getElementById('formModeText').innerText = `— #${rule.id} রুলটি সম্পাদনা করছেন`;
       document.getElementById('saveBtn').innerHTML = '<span>💾 পরিবর্তন সেভ করুন</span>';
-      window.scrollTo({ top: 120, behavior: 'smooth' });
+
+      // Switch to Input Section
+      switchSection('input');
     }
 
     function resetForm() {
       document.getElementById('ruleForm').reset();
       document.getElementById('editRuleId').value = '';
+      currentTags = [];
+      renderTagChips();
       updateDelayDisplay(3);
       document.getElementById('cancelEditBtn').style.display = 'none';
-      document.getElementById('saveBtn').innerHTML = '<span>💾 রুলটি সেভ করুন</span>';
+      document.getElementById('formModeText').innerText = '— নতুন নিয়ম যোগ করার ফর্ম';
+      document.getElementById('saveBtn').innerHTML = '<span>💾 রুলটি ডাটাবেজে সেভ করুন</span>';
     }
 
     async function toggleRuleActive(id) {
@@ -1269,7 +1707,6 @@
       const next = (current === 1 || current === true) ? 0 : 1;
       allRules[idx].is_active = next;
 
-      // Sync local & worker
       fetch(`${LOCAL_API}/api/rules/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -1318,7 +1755,7 @@
       showToast('⚠️ ক্লাউড সিঙ্ক করতে সমস্যা হয়েছে, লোকাল ক্যাশ প্রদর্শিত হচ্ছে।', 'error');
     }
 
-    // Simulator Playground
+    // Simulator Playground with Normalization
     async function sendSimulatorMessage() {
       const input = document.getElementById('simulatorInput');
       const text = input.value.trim();
@@ -1326,7 +1763,7 @@
 
       const chat = document.getElementById('chatMessages');
 
-      // Add user message
+      // User Bubble
       const userBubble = document.createElement('div');
       userBubble.className = 'chat-bubble bubble-user';
       userBubble.innerText = text;
@@ -1334,7 +1771,7 @@
       input.value = '';
       chat.scrollTop = chat.scrollHeight;
 
-      // Matching algorithm
+      // Normalization: English uppercase/lowercase normalized
       const clean = text.toLowerCase();
       let matchedRule = null;
       let matchedKw = '';
@@ -1352,7 +1789,7 @@
         if (matchedRule) break;
       }
 
-      // Show typing indicator
+      // Typing indicator
       const typing = document.createElement('div');
       typing.className = 'typing-indicator';
       typing.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
@@ -1370,16 +1807,16 @@
         if (matchedRule) {
           agentBubble.innerHTML = `
             ${escapeHtml(matchedRule.reply_text)}
-            <div style="font-size:10px; color:#00a884; margin-top:6px; font-weight:600;">
-              ✓ কি-ওয়ার্ড ম্যাচ: "${escapeHtml(matchedKw)}" (ডিলে: ${waitSec}s)
+            <div style="font-size:11px; color:#059669; margin-top:6px; font-weight:700;">
+              ✓ কি-ওয়ার্ড ম্যাচ: "${escapeHtml(matchedKw)}" (টাইপিং ডিলে: ${waitSec}s)
             </div>
           `;
         } else if (localSettings.fallbackReply) {
           agentBubble.innerText = localSettings.fallbackReply;
         } else {
           agentBubble.innerHTML = `
-            <span style="color:#94a3b8; font-style:italic;">
-              (কোনো কি-ওয়ার্ড মেলেনি, তাই বট নীরব রয়েছে। 새로운 রুল ট্রেইন করতে বামের ফর্ম ব্যবহার করুন।)
+            <span style="color:var(--text-muted); font-style:italic;">
+              (কোনো কি-ওয়ার্ড মেলেনি, তাই বট নীরব রয়েছে। নতুন রুল ট্রেইন করতে 'ডাটা ইনপুট' সেকশন ব্যবহার করুন।)
             </span>
           `;
         }
@@ -1464,7 +1901,6 @@
       localStorage.setItem('agent_local_url', LOCAL_API);
       localStorage.setItem('agent_settings', JSON.stringify(localSettings));
 
-      // Push settings to local server
       fetch(`${LOCAL_API}/api/settings`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1477,9 +1913,17 @@
 
     // Init
     window.addEventListener('DOMContentLoaded', () => {
+      // Check saved theme
+      const savedTheme = localStorage.getItem('agent_theme');
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('themeBtn').innerHTML = '<span>🌙 ডার্ক মোড</span>';
+      }
+
       const savedSettings = localStorage.getItem('agent_settings');
       if (savedSettings) localSettings = JSON.parse(savedSettings);
 
+      renderTagChips();
       fetchRules();
       checkGatewayStatus();
       setInterval(checkGatewayStatus, 5000);
