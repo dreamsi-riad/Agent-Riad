@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agent Riad — WhatsApp AI Training & Gateway Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Anek+Bangla:wght@400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(17, 24, 39, 0.75);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --card-hover: rgba(255, 255, 255, 0.14);
+      --primary: #10b981;
+      --primary-glow: rgba(16, 185, 129, 0.25);
+      --indigo: #6366f1;
+      --indigo-glow: rgba(99, 102, 241, 0.25);
+      --cyan: #06b6d4;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --font: 'Outfit', 'Anek Bangla', system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: radial-gradient(circle at 10% 10%, #111827 0%, #090d16 60%, #030712 100%);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navbar */
+    .navbar {
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--card-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .brand span {
+      background: linear-gradient(135deg, #34d399, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--muted);
+      position: relative;
+    }
+
+    .status-badge.connected .status-dot {
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+    }
+    .status-badge.connected {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .status-badge.scan_qr .status-dot {
+      background: #f59e0b;
+      box-shadow: 0 0 10px #f59e0b;
+    }
+    .status-badge.scan_qr {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: #fbbf24;
+    }
+
+    .status-badge.disconnected .status-dot {
+      background: #ef4444;
+    }
+
+    .btn {
+      padding: 9px 18px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      outline: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--primary-glow);
+    }
+
+    .btn-indigo {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--indigo-glow);
+    }
+    .btn-indigo:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px var(--indigo-glow);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--card-border);
+      color: var(--text);
+    }
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--card-hover);
+    }
+
+    .btn-danger-ghost {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+    .btn-danger-ghost:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Container */
+    .container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 30px;
+      flex: 1;
+    }
+
+    /* Metric Cards */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .metric-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--card-hover);
+    }
+
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .metric-icon.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+    .metric-icon.indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+    .metric-icon.cyan { background: rgba(6, 182, 212, 0.15); color: #22d3ee; }
+    .metric-icon.amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+    .metric-info h4 {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .metric-info .metric-num {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 460px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 1080px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Glass Panels */
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(14px);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .panel-title {
+      font-size: 17px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-title span {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 400;
+    }
+
+    /* Form Fields */
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+
+    .form-group label .required {
+      color: var(--danger);
+    }
+
+    .form-control {
+      width: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    textarea.form-control {
+      min-height: 110px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    .input-hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .slider-container input[type="range"] {
+      flex: 1;
+      accent-color: var(--primary);
+    }
+    .slider-val {
+      min-width: 48px;
+      padding: 4px 8px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #34d399;
+      text-align: center;
+    }
+
+    /* Switch */
+    .switch-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(255, 255, 255, 0.15);
+      transition: .3s;
+      border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: var(--primary);
+    }
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Rule Cards in Management List */
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .rules-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 650px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .rules-list::-webkit-scrollbar { width: 6px; }
+    .rules-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+    .rule-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .rule-card:hover {
+      border-color: var(--card-hover);
+      background: rgba(15, 23, 42, 0.85);
+    }
+    .rule-card.inactive {
+      opacity: 0.55;
+    }
+
+    .rule-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .rule-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .badge-delay {
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+    .badge-active {
+      background: rgba(16, 185, 129, 0.15);
+      color: #6ee7b7;
+    }
+    .badge-inactive {
+      background: rgba(239, 68, 68, 0.15);
+      color: #fca5a5;
+    }
+
+    .keywords-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .kw-tag {
+      background: rgba(255, 255, 255, 0.08);
+      color: #38bdf8;
+      border: 1px solid rgba(56, 189, 248, 0.2);
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .rule-reply-preview {
+      background: rgba(2, 6, 23, 0.5);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #cbd5e1;
+      line-height: 1.45;
+      border-left: 3px solid var(--primary);
+      white-space: pre-wrap;
+    }
+
+    .rule-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .rule-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    /* Simulator / Test Playground */
+    .simulator-container {
+      margin-top: 24px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+      backdrop-filter: blur(14px);
+    }
+
+    .chat-box {
+      max-width: 650px;
+      margin: 0 auto;
+      background: #0b141a;
+      border-radius: 16px;
+      border: 1px solid #202c33;
+      overflow: hidden;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    }
+
+    .chat-header {
+      background: #202c33;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .chat-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #00a884;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .chat-header-info h5 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #e9edef;
+    }
+    .chat-header-info p {
+      font-size: 11px;
+      color: #8696a0;
+    }
+
+    .chat-messages {
+      height: 280px;
+      padding: 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: radial-gradient(circle at center, #111b21 0%, #0c1317 100%);
+    }
+
+    .chat-bubble {
+      max-width: 75%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.45;
+      position: relative;
+      animation: popIn 0.2s ease;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .bubble-user {
+      align-self: flex-end;
+      background: #005c4b;
+      color: #e9edef;
+      border-bottom-right-radius: 2px;
+    }
+
+    .bubble-agent {
+      align-self: flex-start;
+      background: #202c33;
+      color: #e9edef;
+      border-bottom-left-radius: 2px;
+    }
+
+    .typing-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: #202c33;
+      border-radius: 12px;
+      align-self: flex-start;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #8696a0;
+      animation: bounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+    }
+
+    .chat-input-bar {
+      display: flex;
+      padding: 10px 14px;
+      background: #202c33;
+      gap: 10px;
+    }
+    .chat-input {
+      flex: 1;
+      background: #2a3942;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: #e9edef;
+      font-family: var(--font);
+      font-size: 13.5px;
+      outline: none;
+    }
+    .chat-send-btn {
+      background: #00a884;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 0 16px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .modal-card {
+      background: #111827;
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+      max-width: 480px;
+      width: 90%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      position: relative;
+      text-align: center;
+    }
+    .modal-close {
+      position: absolute;
+      top: 18px; right: 18px;
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 999;
+    }
+    .toast {
+      background: #1e293b;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 10px;
+      border-left: 4px solid var(--primary);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      font-size: 13.5px;
+      font-weight: 500;
+      animation: slideIn 0.3s ease;
+    }
+    .toast.error { border-left-color: var(--danger); }
+    .toast.warning { border-left-color: var(--warning); }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation -->
+  <header class="navbar">
+    <div class="brand">
+      <div class="brand-icon">🤖</div>
+      <div>AGENT <span>RIAD</span></div>
+    </div>
+
+    <div class="nav-actions">
+      <!-- Live WhatsApp Status Badge -->
+      <div id="statusBadge" class="status-badge" onclick="openQrModal()">
+        <span class="status-dot"></span>
+        <span id="statusText">Gateway চেকিং...</span>
+      </div>
+
+      <button class="btn btn-ghost" onclick="syncCloudRules()">
+        <span>☁️ D1 সিঙ্ক</span>
+      </button>
+
+      <button class="btn btn-indigo" onclick="openSettingsModal()">
+        <span>⚙️ সেটিংস</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Container -->
+  <main class="container">
+    
+    <!-- Metrics Row -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-icon green">🎯</div>
+        <div class="metric-info">
+          <h4>মোট ট্রেইন করা রুল</h4>
+          <div class="metric-num" id="totalRulesCount">0</div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon cyan">⚡</div>
+        <div class="metric-info">
+          <h4>সক্রিয় অটো-রিপ্লাই</h4>
+          <div class="metric-num" id="activeRulesCount">0</div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon indigo">⏱️</div>
+        <div class="metric-info">
+          <h4>গড় রেসপন্স ডিলে</h4>
+          <div class="metric-num" id="avgDelay">3.0s</div>
+        </div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-icon amber">📱</div>
+        <div class="metric-info">
+          <h4>সংযুক্ত WhatsApp</h4>
+          <div class="metric-num" id="phoneDisplay" style="font-size:18px;">ডিসকানেক্টেড</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Two-Column Layout -->
+    <div class="main-grid">
+      
+      <!-- Left Column: Input / Training Zone -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span style="font-size:18px;">✍️</span> নতুন অটো-রিপ্লাই ট্রেইন করুন
+          </div>
+          <button id="cancelEditBtn" class="btn btn-ghost" style="display:none; padding:4px 10px; font-size:12px;" onclick="resetForm()">বাতিল</button>
+        </div>
+
+        <form id="ruleForm" onsubmit="handleSaveRule(event)">
+          <input type="hidden" id="editRuleId" value="">
+
+          <div class="form-group">
+            <label>রুল শিরোনাম বা ক্যাটাগরি</label>
+            <input type="text" id="ruleTitle" class="form-control" placeholder="যেমন: কোর্স ফি ও ভর্তি তথ্য" required>
+            <div class="input-hint">আপনার সুবিধার্থে এই রুলটির একটি নাম বা টপিক দিন।</div>
+          </div>
+
+          <div class="form-group">
+            <label>টার্গেট কি-ওয়ার্ডসমূহ <span class="required">*</span></label>
+            <input type="text" id="ruleKeywords" class="form-control" placeholder="যেমন: কোর্স, ফি, কত টাকা, খরচ, দাম, price" required>
+            <div class="input-hint">কমা (,) দিয়ে একাধিক শব্দ যোগ করুন। স্টুডেন্টের পাঠানো মেসেজে এর যেকোনো একটি শব্দ থাকলেই স্বয়ংক্রিয়ভাবে রিপ্লাই চলে যাবে।</div>
+          </div>
+
+          <div class="form-group">
+            <label>স্বয়ংক্রিয় রিপ্লাই টেক্সট <span class="required">*</span></label>
+            <textarea id="ruleReply" class="form-control" placeholder="স্টুডেন্টকে যে উত্তরটি দেওয়া হবে তা এখানে লিখুন..." required></textarea>
+            <div class="input-hint">লিঙ্ক, কোর্সের ফি বা বিস্তারিত বিবরণ সুন্দরভাবে প্যারাগ্রাফ আকারে লিখতে পারেন।</div>
+          </div>
+
+          <div class="form-group">
+            <label>রিপ্লাই ডিলে (হিউম্যান টাইমিং)</label>
+            <div class="slider-container">
+              <input type="range" id="ruleDelay" min="1" max="10" step="1" value="3" oninput="updateDelayDisplay(this.value)">
+              <div class="slider-val" id="delayValText">3s</div>
+            </div>
+            <div class="input-hint">মেসেজ পাওয়ার পর ঠিক কত সেকেন্ড অপেক্ষা করে মানুষের মতো "Typing..." দেখিয়ে রিপ্লাই দেবে।</div>
+          </div>
+
+          <div class="form-group">
+            <label class="switch-label">
+              <span>রুলটি তাৎক্ষণিক সক্রিয় (Active) রাখুন</span>
+              <div class="switch">
+                <input type="checkbox" id="ruleActive" checked>
+                <span class="slider"></span>
+              </div>
+            </label>
+          </div>
+
+          <div style="display:flex; gap:10px; margin-top:24px;">
+            <button type="submit" id="saveBtn" class="btn btn-primary" style="flex:1;">
+              <span>💾 রুলটি সেভ করুন</span>
+            </button>
+            <button type="button" class="btn btn-ghost" onclick="resetForm()">রিসেট</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Right Column: Rules Management -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span style="font-size:18px;">📚</span> ট্রেইন করা কি-ওয়ার্ড ও রুলস তালিকা
+          </div>
+          <div style="font-size:12px; color:var(--muted);" id="rulesCountBadge">০ টি রুল</div>
+        </div>
+
+        <div class="search-bar">
+          <input type="text" id="searchInput" class="form-control" placeholder="🔍 কি-ওয়ার্ড বা শিরোনাম দিয়ে খুঁজুন..." oninput="renderRulesList()">
+        </div>
+
+        <div class="rules-list" id="rulesListContainer">
+          <!-- Dynamic Rules Render Here -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Simulator Section -->
+    <div class="simulator-container">
+      <div class="panel-header">
+        <div class="panel-title">
+          <span style="font-size:18px;">🧪</span> WhatsApp বট সিমুলেটর (লাইভ টেস্ট জোন)
+        </div>
+        <span style="font-size:13px; color:var(--muted);">স্টুডেন্টের মতো মেসেজ লিখে টেস্ট করুন এজেন্ট কেমন উত্তর দেয়</span>
+      </div>
+
+      <div class="chat-box">
+        <div class="chat-header">
+          <div class="chat-avatar">🤖</div>
+          <div class="chat-header-info">
+            <h5>Agent Riad (Automated Bot)</h5>
+            <p id="chatSubStatus">অনলাইন · কি-ওয়ার্ড ডিটেকশন সক্রিয়</p>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-bubble bubble-agent">
+            আসসালামু আলাইকুম! আমি Agent Riad। আপনি যেকোনো প্রশ্ন লিখে টেস্ট করতে পারেন।
+          </div>
+        </div>
+
+        <div class="chat-input-bar">
+          <input type="text" id="simulatorInput" class="chat-input" placeholder="যেমন: ভাইয়া কোর্স ফি কত? অথবা কোর্সে ভর্তি হব কিভাবে?" onkeydown="if(event.key==='Enter') sendSimulatorMessage()">
+          <button class="chat-send-btn" onclick="sendSimulatorMessage()">টেস্ট পাঠান</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- QR Code Modal -->
+  <div id="qrModal" class="modal-overlay">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeQrModal()">✕</button>
+      <h3 style="margin-bottom:8px; font-size:18px;">📲 WhatsApp লিংক করুন</h3>
+      <p style="font-size:13px; color:var(--muted); margin-bottom:16px;">
+        ১. WhatsApp ওপেন করুন ➔ <b>Linked Devices</b><br>
+        ২. <b>Link a Device</b>-এ ক্লিক করে স্ক্যান করুন:
+      </p>
+
+      <div id="qrImageWrap" style="display:inline-block; padding:12px; background:#fff; border-radius:12px; margin-bottom:14px; min-width:240px; min-height:240px; display:flex; align-items:center; justify-content:center;">
+        <span style="color:#64748b; font-size:13px;">QR কোড লোড হচ্ছে...</span>
+      </div>
+
+      <p id="qrFooterText" style="font-size:12px; color:var(--muted);">প্রতি ৫ সেকেন্ডে স্ট্যাটাস আপডেট হচ্ছে...</p>
+    </div>
+  </div>
+
+  <!-- Settings Modal -->
+  <div id="settingsModal" class="modal-overlay">
+    <div class="modal-card" style="text-align:left; max-width:540px;">
+      <button class="modal-close" onclick="closeSettingsModal()">✕</button>
+      <h3 style="margin-bottom:16px; font-size:18px;">⚙️ এজেন্ট ও গেটওয়ে সেটিংস</h3>
+
+      <div class="form-group">
+        <label>Cloudflare Worker API URL</label>
+        <input type="text" id="cfgWorkerUrl" class="form-control" value="https://visiondatabox-worker.dreamsicreation.workers.dev">
+        <div class="input-hint">যে ক্লাউডফ্লেয়ার ওয়ার্কারের D1 ডাটাবেজে রুলস সেভ থাকবে।</div>
+      </div>
+
+      <div class="form-group">
+        <label>Local Gateway Server URL</label>
+        <input type="text" id="cfgLocalUrl" class="form-control" value="http://localhost:3001">
+        <div class="input-hint">আপনার পিসিতে চলা লোকাল নোড জেএস গেটওয়ে।</div>
+      </div>
+
+      <div class="form-group">
+        <label>কোনো কি-ওয়ার্ড না মিললে ডিফল্ট রিপ্লাই (ঐচ্ছিক)</label>
+        <textarea id="cfgFallbackReply" class="form-control" style="min-height:70px;" placeholder="যদি কোনো কি-ওয়ার্ড না মিলে তবে ফাঁকা রাখলে বট কিছুই বলবে না (সুপারিশকৃত)।"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="switch-label">
+          <span>মেসেজ রিপ্লাইয়ের আগে "Typing..." দেখান</span>
+          <div class="switch">
+            <input type="checkbox" id="cfgTypingIndicator" checked>
+            <span class="slider"></span>
+          </div>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="switch-label">
+          <span>শুধুমাত্র প্রাইভেট চ্যাটে রিপ্লাই দিন (গ্রুপ ইগনোর করুন)</span>
+          <div class="switch">
+            <input type="checkbox" id="cfgOnlyPrivate" checked>
+            <span class="slider"></span>
+          </div>
+        </label>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+        <button class="btn btn-ghost" onclick="closeSettingsModal()">বন্ধ করুন</button>
+        <button class="btn btn-primary" onclick="saveSettings()">সেভ সেটিংস</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script>
+    // Configuration
+    let WORKER_API = localStorage.getItem('agent_worker_url') || 'https://visiondatabox-worker.dreamsicreation.workers.dev';
+    let LOCAL_API = localStorage.getItem('agent_local_url') || 'http://localhost:3001';
+
+    let allRules = [];
+    let isGatewayConnected = false;
+    let localSettings = {
+      defaultDelay: 3,
+      typingIndicator: true,
+      onlyPrivate: true,
+      fallbackReply: ''
+    };
+
+    // Notification toast
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerText = msg;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.remove();
+      }, 4000);
+    }
+
+    function updateDelayDisplay(val) {
+      document.getElementById('delayValText').innerText = val + 's';
+    }
+
+    // Status Checker
+    async function checkGatewayStatus() {
+      const badge = document.getElementById('statusBadge');
+      const text = document.getElementById('statusText');
+      const phoneDisplay = document.getElementById('phoneDisplay');
+
+      try {
+        const res = await fetch(`${LOCAL_API}/status`, { signal: AbortSignal.timeout(2500) });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.connected) {
+            isGatewayConnected = true;
+            badge.className = 'status-badge connected';
+            text.innerText = `WhatsApp: Online (${data.phone})`;
+            phoneDisplay.innerText = data.phone || 'Online';
+            phoneDisplay.style.color = '#34d399';
+          } else if (data.hasQR || data.status === 'scan_qr') {
+            isGatewayConnected = false;
+            badge.className = 'status-badge scan_qr';
+            text.innerText = '📲 QR কোড স্ক্যান করুন';
+            phoneDisplay.innerText = 'স্ক্যান প্রয়োজন';
+            phoneDisplay.style.color = '#fbbf24';
+          } else {
+            isGatewayConnected = false;
+            badge.className = 'status-badge disconnected';
+            text.innerText = 'সার্ভার চালু হচ্ছে...';
+            phoneDisplay.innerText = 'ইনিশিয়ালাইজিং';
+            phoneDisplay.style.color = '#94a3b8';
+          }
+          return;
+        }
+      } catch (e) {
+        // Local server is not running
+      }
+
+      isGatewayConnected = false;
+      badge.className = 'status-badge disconnected';
+      text.innerText = 'Gateway: অফলাইন';
+      phoneDisplay.innerText = 'অফলাইন';
+      phoneDisplay.style.color = '#ef4444';
+    }
+
+    // Fetch Rules (Tries Local Gateway first, falls back to Cloudflare Worker)
+    async function fetchRules() {
+      let loaded = false;
+
+      // 1. Try local server
+      try {
+        const res = await fetch(`${LOCAL_API}/api/rules`, { signal: AbortSignal.timeout(2000) });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.rules)) {
+            allRules = data.rules;
+            loaded = true;
+          }
+        }
+      } catch (e) {}
+
+      // 2. If not loaded from local, fetch from Cloudflare Worker
+      if (!loaded) {
+        try {
+          const res = await fetch(`${WORKER_API}/api/agent/rules`, { signal: AbortSignal.timeout(4000) });
+          if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data.rules)) {
+              allRules = data.rules;
+              loaded = true;
+            }
+          }
+        } catch (e) {}
+      }
+
+      // If still empty and no network, use starter fallback
+      if (!loaded && allRules.length === 0) {
+        const local = localStorage.getItem('agent_cached_rules');
+        if (local) {
+          allRules = JSON.parse(local);
+        } else {
+          allRules = [
+            {
+              id: 1,
+              title: 'কোর্স ও ফি সম্পর্কিত',
+              keywords: 'কোর্স, ফি, কত টাকা, খরচ, দাম, price, fee, cost, admission',
+              reply_text: 'আসসালামু আলাইকুম! আমাদের সকল কোর্স ও ফি সম্পর্কিত বিস্তারিত তথ্য জানতে ভিজিট করুন: https://visionplusbd.com/All_Courses.html অথবা আমাদের সাথে সরাসরি কথা বলতে কল করুন।',
+              delay_seconds: 3,
+              is_active: 1
+            },
+            {
+              id: 2,
+              title: 'অভ্যর্থনা / Greeting',
+              keywords: 'hi, hello, hey, সালাম, salam, হ্যালো, হাই, assalamu alaikum',
+              reply_text: 'ওয়ালাইকুম আসসালাম! VISION Plus-এ আপনাকে স্বাগতম। আপনাকে কীভাবে সাহায্য করতে পারি? কোর্স সম্পর্কিত তথ্যের জন্য "কোর্স" লিখে পাঠান।',
+              delay_seconds: 2,
+              is_active: 1
+            }
+          ];
+        }
+      }
+
+      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
+      updateMetrics();
+      renderRulesList();
+    }
+
+    function updateMetrics() {
+      document.getElementById('totalRulesCount').innerText = allRules.length;
+      const activeCount = allRules.filter(r => r.is_active !== 0 && r.is_active !== false).length;
+      document.getElementById('activeRulesCount').innerText = activeCount;
+
+      if (allRules.length > 0) {
+        const avg = (allRules.reduce((acc, r) => acc + (Number(r.delay_seconds) || 3), 0) / allRules.length).toFixed(1);
+        document.getElementById('avgDelay').innerText = avg + 's';
+      }
+    }
+
+    function renderRulesList() {
+      const container = document.getElementById('rulesListContainer');
+      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      const filtered = allRules.filter(r => {
+        const title = String(r.title || '').toLowerCase();
+        const kw = String(r.keywords || '').toLowerCase();
+        const reply = String(r.reply_text || '').toLowerCase();
+        return !search || title.includes(search) || kw.includes(search) || reply.includes(search);
+      });
+
+      document.getElementById('rulesCountBadge').innerText = `${filtered.length} টি রুল প্রদর্শিত`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:50px 20px; color:var(--muted);">
+            <div style="font-size:36px; margin-bottom:8px;">🔍</div>
+            <p>কোনো অটো-রিপ্লাই রুল পাওয়া যায়নি।</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(r => {
+        const isActive = r.is_active !== 0 && r.is_active !== false;
+        const kwList = String(r.keywords || '').split(',').map(k => k.trim()).filter(k => k);
+
+        return `
+          <div class="rule-card ${isActive ? '' : 'inactive'}" id="card_${r.id}">
+            <div class="rule-top">
+              <div class="rule-title">
+                ${escapeHtml(r.title || 'Untitled Rule')}
+                <span class="badge badge-delay">⏱️ ${r.delay_seconds || 3}s</span>
+                <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'সক্রিয়' : 'নিষ্ক্রিয়'}</span>
+              </div>
+              <div class="switch">
+                <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleRuleActive(${r.id})">
+                <span class="slider"></span>
+              </div>
+            </div>
+
+            <div class="keywords-wrap">
+              ${kwList.map(kw => `<span class="kw-tag">${escapeHtml(kw)}</span>`).join('')}
+            </div>
+
+            <div class="rule-reply-preview">${escapeHtml(r.reply_text || '')}</div>
+
+            <div class="rule-bottom">
+              <span style="font-size:11px; color:var(--muted);">ID: #${r.id}</span>
+              <div class="rule-actions">
+                <button class="btn btn-ghost" style="padding:4px 10px; font-size:12px;" onclick="editRule(${r.id})">✏️ এডিট</button>
+                <button class="btn btn-danger-ghost" style="padding:4px 10px; font-size:12px;" onclick="deleteRule(${r.id})">🗑️ ডিলিট</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    // Save Rule (Add or Edit)
+    async function handleSaveRule(e) {
+      e.preventDefault();
+      const id = document.getElementById('editRuleId').value;
+      const title = document.getElementById('ruleTitle').value.trim();
+      const keywords = document.getElementById('ruleKeywords').value.trim();
+      const reply = document.getElementById('ruleReply').value.trim();
+      const delay = Number(document.getElementById('ruleDelay').value) || 3;
+      const isActive = document.getElementById('ruleActive').checked ? 1 : 0;
+
+      const payload = {
+        title,
+        keywords,
+        reply_text: reply,
+        delay_seconds: delay,
+        is_active: isActive
+      };
+
+      // Send to Local Gateway & Cloudflare Worker
+      let success = false;
+
+      // 1. Try local server
+      try {
+        const url = id ? `${LOCAL_API}/api/rules/${id}` : `${LOCAL_API}/api/rules`;
+        const method = id ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (res.ok) success = true;
+      } catch (e) {}
+
+      // 2. Try Cloudflare Worker
+      try {
+        const wUrl = id ? `${WORKER_API}/api/agent/rules/${id}` : `${WORKER_API}/api/agent/rules`;
+        const method = id ? 'PUT' : 'POST';
+        await fetch(wUrl, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {}
+
+      // Optimistic update in UI
+      if (id) {
+        const idx = allRules.findIndex(r => String(r.id) === String(id));
+        if (idx !== -1) {
+          allRules[idx] = { ...allRules[idx], ...payload };
+        }
+        showToast('✅ রুলটি সফলভাবে আপডেট হয়েছে!');
+      } else {
+        const newRule = { id: Date.now(), ...payload };
+        allRules.unshift(newRule);
+        showToast('🎉 নতুন অটো-রিপ্লাই সফলভাবে যোগ করা হয়েছে!');
+      }
+
+      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
+      resetForm();
+      updateMetrics();
+      renderRulesList();
+    }
+
+    function editRule(id) {
+      const rule = allRules.find(r => String(r.id) === String(id));
+      if (!rule) return;
+
+      document.getElementById('editRuleId').value = rule.id;
+      document.getElementById('ruleTitle').value = rule.title || '';
+      document.getElementById('ruleKeywords').value = rule.keywords || '';
+      document.getElementById('ruleReply').value = rule.reply_text || '';
+      document.getElementById('ruleDelay').value = rule.delay_seconds || 3;
+      updateDelayDisplay(rule.delay_seconds || 3);
+      document.getElementById('ruleActive').checked = rule.is_active !== 0 && rule.is_active !== false;
+
+      document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+      document.getElementById('saveBtn').innerHTML = '<span>💾 পরিবর্তন সেভ করুন</span>';
+      window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+
+    function resetForm() {
+      document.getElementById('ruleForm').reset();
+      document.getElementById('editRuleId').value = '';
+      updateDelayDisplay(3);
+      document.getElementById('cancelEditBtn').style.display = 'none';
+      document.getElementById('saveBtn').innerHTML = '<span>💾 রুলটি সেভ করুন</span>';
+    }
+
+    async function toggleRuleActive(id) {
+      const idx = allRules.findIndex(r => String(r.id) === String(id));
+      if (idx === -1) return;
+
+      const current = allRules[idx].is_active;
+      const next = (current === 1 || current === true) ? 0 : 1;
+      allRules[idx].is_active = next;
+
+      // Sync local & worker
+      fetch(`${LOCAL_API}/api/rules/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_active: next })
+      }).catch(() => {});
+
+      fetch(`${WORKER_API}/api/agent/rules/${id}/toggle`, { method: 'POST' }).catch(() => {});
+
+      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
+      updateMetrics();
+      renderRulesList();
+      showToast(next ? 'রুলটি সক্রিয় করা হয়েছে' : 'রুলটি নিষ্ক্রিয় করা হয়েছে');
+    }
+
+    async function deleteRule(id) {
+      if (!confirm('আপনি কি নিশ্চিত যে এই রুলটি মুছে ফেলতে চান?')) return;
+
+      allRules = allRules.filter(r => String(r.id) !== String(id));
+
+      fetch(`${LOCAL_API}/api/rules/${id}`, { method: 'DELETE' }).catch(() => {});
+      fetch(`${WORKER_API}/api/agent/rules/${id}`, { method: 'DELETE' }).catch(() => {});
+
+      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
+      updateMetrics();
+      renderRulesList();
+      showToast('রুলটি মুছে ফেলা হয়েছে');
+    }
+
+    // Cloudflare D1 Manual Sync
+    async function syncCloudRules() {
+      showToast('☁️ Cloudflare D1 থেকে ডাটা আনা হচ্ছে...', 'warning');
+      try {
+        const res = await fetch(`${WORKER_API}/api/agent/rules`);
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.rules)) {
+            allRules = data.rules;
+            localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
+            updateMetrics();
+            renderRulesList();
+            showToast(`✅ ${allRules.length}টি রুল সফলভাবে সিঙ্ক হয়েছে!`);
+            return;
+          }
+        }
+      } catch (e) {}
+      showToast('⚠️ ক্লাউড সিঙ্ক করতে সমস্যা হয়েছে, লোকাল ক্যাশ প্রদর্শিত হচ্ছে।', 'error');
+    }
+
+    // Simulator Playground
+    async function sendSimulatorMessage() {
+      const input = document.getElementById('simulatorInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      const chat = document.getElementById('chatMessages');
+
+      // Add user message
+      const userBubble = document.createElement('div');
+      userBubble.className = 'chat-bubble bubble-user';
+      userBubble.innerText = text;
+      chat.appendChild(userBubble);
+      input.value = '';
+      chat.scrollTop = chat.scrollHeight;
+
+      // Matching algorithm
+      const clean = text.toLowerCase();
+      let matchedRule = null;
+      let matchedKw = '';
+
+      for (const r of allRules) {
+        if (r.is_active === 0 || r.is_active === false) continue;
+        const kwList = String(r.keywords || '').split(',').map(k => k.trim().toLowerCase()).filter(k => k);
+        for (const kw of kwList) {
+          if (clean.includes(kw)) {
+            matchedRule = r;
+            matchedKw = kw;
+            break;
+          }
+        }
+        if (matchedRule) break;
+      }
+
+      // Show typing indicator
+      const typing = document.createElement('div');
+      typing.className = 'typing-indicator';
+      typing.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+      chat.appendChild(typing);
+      chat.scrollTop = chat.scrollHeight;
+
+      const waitSec = matchedRule ? (Number(matchedRule.delay_seconds) || 3) : 2;
+
+      setTimeout(() => {
+        typing.remove();
+
+        const agentBubble = document.createElement('div');
+        agentBubble.className = 'chat-bubble bubble-agent';
+
+        if (matchedRule) {
+          agentBubble.innerHTML = `
+            ${escapeHtml(matchedRule.reply_text)}
+            <div style="font-size:10px; color:#00a884; margin-top:6px; font-weight:600;">
+              ✓ কি-ওয়ার্ড ম্যাচ: "${escapeHtml(matchedKw)}" (ডিলে: ${waitSec}s)
+            </div>
+          `;
+        } else if (localSettings.fallbackReply) {
+          agentBubble.innerText = localSettings.fallbackReply;
+        } else {
+          agentBubble.innerHTML = `
+            <span style="color:#94a3b8; font-style:italic;">
+              (কোনো কি-ওয়ার্ড মেলেনি, তাই বট নীরব রয়েছে। 새로운 রুল ট্রেইন করতে বামের ফর্ম ব্যবহার করুন।)
+            </span>
+          `;
+        }
+
+        chat.appendChild(agentBubble);
+        chat.scrollTop = chat.scrollHeight;
+      }, waitSec * 1000);
+    }
+
+    // QR Modal Controls
+    let qrPollInterval = null;
+    async function openQrModal() {
+      const modal = document.getElementById('qrModal');
+      modal.classList.add('open');
+      loadQrCode();
+      qrPollInterval = setInterval(loadQrCode, 4000);
+    }
+
+    function closeQrModal() {
+      document.getElementById('qrModal').classList.remove('open');
+      if (qrPollInterval) clearInterval(qrPollInterval);
+    }
+
+    async function loadQrCode() {
+      const wrap = document.getElementById('qrImageWrap');
+      const footer = document.getElementById('qrFooterText');
+
+      try {
+        const res = await fetch(`${LOCAL_API}/qr`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.connected) {
+            wrap.innerHTML = `
+              <div style="text-align:center; padding:20px; color:#059669;">
+                <div style="font-size:48px;">✅</div>
+                <h4 style="margin-top:8px;">সংযুক্ত রয়েছে!</h4>
+                <p style="font-size:12px; color:#64748b; margin-top:4px;">নম্বর: ${data.phone || 'Online'}</p>
+              </div>
+            `;
+            footer.innerText = 'WhatsApp সফলভাবে কানেক্টেড রয়েছে।';
+            return;
+          }
+
+          if (data.qrImage) {
+            wrap.innerHTML = `<img src="${data.qrImage}" alt="QR" style="display:block; width:220px; height:220px;">`;
+            footer.innerText = 'আপনার ফোনে স্ক্যান করে কানেক্ট করুন।';
+            return;
+          }
+        }
+      } catch (e) {}
+
+      wrap.innerHTML = `
+        <div style="text-align:center; padding:15px; color:#ef4444;">
+          <div style="font-size:32px;">⚠️</div>
+          <p style="font-size:12px; margin-top:6px;">লোকাল গেটওয়ে অফলাইন।<br><b>run-agent.bat</b> ফাইলটি রান করুন।</p>
+        </div>
+      `;
+    }
+
+    // Settings Modal
+    function openSettingsModal() {
+      document.getElementById('cfgWorkerUrl').value = WORKER_API;
+      document.getElementById('cfgLocalUrl').value = LOCAL_API;
+      document.getElementById('cfgFallbackReply').value = localSettings.fallbackReply || '';
+      document.getElementById('cfgTypingIndicator').checked = localSettings.typingIndicator !== false;
+      document.getElementById('cfgOnlyPrivate').checked = localSettings.onlyPrivate !== false;
+      document.getElementById('settingsModal').classList.add('open');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+
+    function saveSettings() {
+      WORKER_API = document.getElementById('cfgWorkerUrl').value.trim();
+      LOCAL_API = document.getElementById('cfgLocalUrl').value.trim();
+      localSettings.fallbackReply = document.getElementById('cfgFallbackReply').value.trim();
+      localSettings.typingIndicator = document.getElementById('cfgTypingIndicator').checked;
+      localSettings.onlyPrivate = document.getElementById('cfgOnlyPrivate').checked;
+
+      localStorage.setItem('agent_worker_url', WORKER_API);
+      localStorage.setItem('agent_local_url', LOCAL_API);
+      localStorage.setItem('agent_settings', JSON.stringify(localSettings));
+
+      // Push settings to local server
+      fetch(`${LOCAL_API}/api/settings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(localSettings)
+      }).catch(() => {});
+
+      closeSettingsModal();
+      showToast('⚙️ সেটিংস সফলভাবে সংরক্ষিত হয়েছে!');
+    }
+
+    // Init
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedSettings = localStorage.getItem('agent_settings');
+      if (savedSettings) localSettings = JSON.parse(savedSettings);
+
+      fetchRules();
+      checkGatewayStatus();
+      setInterval(checkGatewayStatus, 5000);
+    });
+  </script>
+</body>
+</html>
