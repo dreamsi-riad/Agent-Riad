@@ -1453,13 +1453,13 @@
       phoneDisplay.style.color = 'var(--danger)';
     }
 
-    // Fetch Rules
+    // Fetch Rules (Prioritize Cloudflare D1 as Single Source of Truth)
     async function fetchRules() {
       let loaded = false;
 
-      // 1. Try local server
+      // 1. Fetch from Cloudflare Worker D1
       try {
-        const res = await fetch(`${LOCAL_API}/api/rules`, { signal: AbortSignal.timeout(2000) });
+        const res = await fetch(`${WORKER_API}/api/agent/rules`, { signal: AbortSignal.timeout(4000) });
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data.rules)) {
@@ -1469,10 +1469,10 @@
         }
       } catch (e) {}
 
-      // 2. Fallback to Cloudflare Worker
+      // 2. Fallback to local server if offline
       if (!loaded) {
         try {
-          const res = await fetch(`${WORKER_API}/api/agent/rules`, { signal: AbortSignal.timeout(4000) });
+          const res = await fetch(`${LOCAL_API}/api/rules`, { signal: AbortSignal.timeout(2000) });
           if (res.ok) {
             const data = await res.json();
             if (Array.isArray(data.rules)) {
@@ -1634,46 +1634,47 @@
         is_active: isActive
       };
 
-      // 1. Send to Local Gateway
-      try {
-        const url = id ? `${LOCAL_API}/api/rules/${id}` : `${LOCAL_API}/api/rules`;
-        const method = id ? 'PUT' : 'POST';
-        await fetch(url, {
-          method,
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-      } catch (e) {}
+      const saveBtn = document.getElementById('saveBtn');
+      const origBtnText = saveBtn ? saveBtn.innerHTML : '';
+      if (saveBtn) {
+        saveBtn.innerHTML = '<span>সংরক্ষণ হচ্ছে...</span>';
+        saveBtn.disabled = true;
+      }
 
-      // 2. Send to Cloudflare Worker
+      let saveOk = false;
+      // Send ONLY ONCE directly to Cloudflare Worker D1 (No duplicate records!)
       try {
         const wUrl = id ? `${WORKER_API}/api/agent/rules/${id}` : `${WORKER_API}/api/agent/rules`;
         const method = id ? 'PUT' : 'POST';
-        await fetch(wUrl, {
+        const res = await fetch(wUrl, {
           method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-      } catch (e) {}
-
-      // Optimistic update
-      if (id) {
-        const idx = allRules.findIndex(r => String(r.id) === String(id));
-        if (idx !== -1) {
-          allRules[idx] = { ...allRules[idx], ...payload };
-        }
-        showToast('✅ রুলটি সফলভাবে আপডেট হয়েছে!');
-      } else {
-        const newRule = { id: Date.now(), ...payload };
-        allRules.unshift(newRule);
-        showToast('🎉 নতুন অটো-রিপ্লাই সফলভাবে যোগ করা হয়েছে!');
+        if (res.ok) saveOk = true;
+      } catch (e) {
+        console.error('Save to Worker failed:', e);
       }
 
-      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
-      resetForm();
-      updateMetrics();
+      // Notify local gateway to sync in-memory cache from D1 immediately
+      try {
+        await fetch(`${LOCAL_API}/api/sync-now`, { method: 'POST' });
+      } catch (e) {}
 
-      // Automatically switch to management section so user sees the newly saved rule!
+      if (saveBtn) {
+        saveBtn.innerHTML = origBtnText;
+        saveBtn.disabled = false;
+      }
+
+      if (saveOk) {
+        showToast(id ? '✅ রুলটি সফলভাবে আপডেট হয়েছে!' : '🎉 নতুন রুল Cloudflare D1-এ সংরক্ষিত হয়েছে!');
+      } else {
+        showToast('ক্লাউড ডাটাবেজে সংরক্ষণ করা সম্ভব হয়নি!', 'error');
+      }
+
+      // Reload fresh rules directly from Cloudflare Worker to avoid duplicates
+      await fetchRules();
+      resetForm();
       switchSection('manage');
     }
 
@@ -1718,17 +1719,17 @@
       const next = (current === 1 || current === true) ? 0 : 1;
       allRules[idx].is_active = next;
 
-      fetch(`${LOCAL_API}/api/rules/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: next })
-      }).catch(() => {});
-
-      fetch(`${WORKER_API}/api/agent/rules/${id}/toggle`, { method: 'POST' }).catch(() => {});
-
       localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
       updateMetrics();
       renderRulesList();
+
+      try {
+        // Toggle only once on Cloudflare Worker D1
+        await fetch(`${WORKER_API}/api/agent/rules/${id}/toggle`, { method: 'POST' });
+        // Sync local memory
+        await fetch(`${LOCAL_API}/api/sync-now`, { method: 'POST' });
+      } catch (e) {}
+
       showToast(next ? 'রুলটি সক্রিয় করা হয়েছে' : 'রুলটি নিষ্ক্রিয় করা হয়েছে');
     }
 
@@ -1736,9 +1737,16 @@
       if (!confirm('আপনি কি নিশ্চিত যে এই রুলটি মুছে ফেলতে চান?')) return;
 
       allRules = allRules.filter(r => String(r.id) !== String(id));
+      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
+      updateMetrics();
+      renderRulesList();
 
-      fetch(`${LOCAL_API}/api/rules/${id}`, { method: 'DELETE' }).catch(() => {});
-      fetch(`${WORKER_API}/api/agent/rules/${id}`, { method: 'DELETE' }).catch(() => {});
+      try {
+        // Delete only once on Cloudflare Worker D1
+        await fetch(`${WORKER_API}/api/agent/rules/${id}`, { method: 'DELETE' });
+        // Sync local memory
+        await fetch(`${LOCAL_API}/api/sync-now`, { method: 'POST' });
+      } catch (e) {}
 
       localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
       updateMetrics();
@@ -1782,23 +1790,37 @@
       input.value = '';
       chat.scrollTop = chat.scrollHeight;
 
-      // Normalization: English uppercase/lowercase normalized
-      const clean = text.toLowerCase();
+      // Normalization & Strict AND Logic with Candidate Ranking
+      const clean = text.toLowerCase().trim();
       let matchedRule = null;
       let matchedKw = '';
 
+      const simCandidates = [];
       for (const r of allRules) {
         if (r.is_active === 0 || r.is_active === false) continue;
         const kwList = String(r.keywords || '').split(',').map(k => k.trim().toLowerCase()).filter(k => k);
         if (kwList.length === 0) continue;
 
-        // AND Logic: ALL keywords in this rule must be present in student's message (order independent)
+        // Strict AND Logic: ALL keywords in this rule must be present in student's message
         const allMatch = kwList.every(kw => clean.includes(kw));
         if (allMatch) {
-          matchedRule = r;
-          matchedKw = kwList.join(', ');
-          break;
+          simCandidates.push({
+            rule: r,
+            matchedKw: kwList.join(', '),
+            kwCount: kwList.length,
+            totalLength: kwList.reduce((acc, k) => acc + k.length, 0)
+          });
         }
+      }
+
+      if (simCandidates.length > 0) {
+        // Most specific rule wins
+        simCandidates.sort((a, b) => {
+          if (b.kwCount !== a.kwCount) return b.kwCount - a.kwCount;
+          return b.totalLength - a.totalLength;
+        });
+        matchedRule = simCandidates[0].rule;
+        matchedKw = simCandidates[0].matchedKw;
       }
 
       // Typing indicator
@@ -1956,7 +1978,7 @@
 
       let d1Saved = false;
 
-      // 1. Direct Save to Cloudflare D1 Database
+      // 1. Direct Save to Cloudflare D1 Database (Single Request)
       try {
         const wRes = await fetch(WORKER_API + '/api/agent/settings', {
           method: 'POST',
@@ -1971,13 +1993,9 @@
         console.error('Error saving settings to Worker D1:', e);
       }
 
-      // 2. Also notify local server if active
+      // 2. Notify local server to sync in-memory settings (No second D1 write)
       try {
-        await fetch(LOCAL_API + '/api/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+        await fetch(LOCAL_API + '/api/sync-now', { method: 'POST' });
       } catch (e) {}
 
       if (saveBtn) {
