@@ -250,55 +250,6 @@
       flex: 1;
     }
 
-    /* Top Stats Row */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-
-    .metric-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 18px 22px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .metric-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .metric-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-    }
-    .metric-icon.green { background: var(--primary-light); color: var(--primary); }
-    .metric-icon.indigo { background: var(--indigo-light); color: var(--indigo); }
-    .metric-icon.cyan { background: var(--cyan-light); color: var(--cyan); }
-    .metric-icon.amber { background: var(--warning-light); color: var(--warning); }
-
-    .metric-info h4 {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-    .metric-info .metric-num {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-    }
 
     /* SECTION TABS (Two Dedicated Sections) */
     .section-nav-wrapper {
@@ -861,37 +812,6 @@
   <!-- Container -->
   <main class="container">
 
-    <!-- Top Stats Row -->
-    <section class="metrics-grid">
-      <div class="metric-card">
-        <div class="metric-icon green">🎯</div>
-        <div class="metric-info">
-          <h4>মোট ট্রেইন করা রুল</h4>
-          <div class="metric-num" id="totalRulesCount">0</div>
-        </div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-icon cyan">⚡</div>
-        <div class="metric-info">
-          <h4>সক্রিয় অটো-রিপ্লাই</h4>
-          <div class="metric-num" id="activeRulesCount">0</div>
-        </div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-icon indigo">⏱️</div>
-        <div class="metric-info">
-          <h4>গড় রেসপন্স ডিলে</h4>
-          <div class="metric-num" id="avgDelay">3.0s</div>
-        </div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-icon amber">📱</div>
-        <div class="metric-info">
-          <h4>সংযুক্ত WhatsApp</h4>
-          <div class="metric-num" id="phoneDisplay" style="font-size:18px;">ডিসকানেক্টেড</div>
-        </div>
-      </div>
-    </section>
 
     <!-- SECTION NAVIGATION (2 Main Dedicated Sections) -->
     <div class="section-nav-wrapper">
@@ -1243,7 +1163,6 @@
     async function checkGatewayStatus() {
       const badge = document.getElementById('statusBadge');
       const text = document.getElementById('statusText');
-      const phoneDisplay = document.getElementById('phoneDisplay');
 
       try {
         const res = await fetch(`${LOCAL_API}/status`, { signal: AbortSignal.timeout(2500) });
@@ -1253,20 +1172,14 @@
             isGatewayConnected = true;
             badge.className = 'status-badge connected';
             text.innerText = `WhatsApp: Online (${data.phone})`;
-            phoneDisplay.innerText = data.phone || 'Online';
-            phoneDisplay.style.color = 'var(--primary)';
           } else if (data.hasQR || data.status === 'scan_qr') {
             isGatewayConnected = false;
             badge.className = 'status-badge scan_qr';
             text.innerText = '📲 QR কোড স্ক্যান করুন';
-            phoneDisplay.innerText = 'স্ক্যান প্রয়োজন';
-            phoneDisplay.style.color = 'var(--warning)';
           } else {
             isGatewayConnected = false;
             badge.className = 'status-badge disconnected';
             text.innerText = 'সার্ভার চালু হচ্ছে...';
-            phoneDisplay.innerText = 'ইনিশিয়ালাইজিং';
-            phoneDisplay.style.color = 'var(--text-muted)';
           }
           return;
         }
@@ -1275,8 +1188,6 @@
       isGatewayConnected = false;
       badge.className = 'status-badge disconnected';
       text.innerText = 'Gateway: অফলাইন';
-      phoneDisplay.innerText = 'অফলাইন';
-      phoneDisplay.style.color = 'var(--danger)';
     }
 
     // Fetch Rules (Prioritize Cloudflare D1 as Single Source of Truth)
@@ -1341,15 +1252,8 @@
     }
 
     function updateMetrics() {
-      document.getElementById('totalRulesCount').innerText = allRules.length;
-      document.getElementById('tabCountBadge').innerText = allRules.length;
-      const activeCount = allRules.filter(r => r.is_active !== 0 && r.is_active !== false).length;
-      document.getElementById('activeRulesCount').innerText = activeCount;
-
-      if (allRules.length > 0) {
-        const avg = (allRules.reduce((acc, r) => acc + (Number(r.delay_seconds) || 3), 0) / allRules.length).toFixed(1);
-        document.getElementById('avgDelay').innerText = avg + 's';
-      }
+      const badge = document.getElementById('tabCountBadge');
+      if (badge) badge.innerText = allRules.length;
     }
 
     function setFilter(type, btn) {
