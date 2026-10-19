@@ -342,10 +342,6 @@
       color: #fff;
       box-shadow: 0 4px 12px var(--primary-glow);
     }
-    .tab-btn.active.tab-indigo {
-      background: var(--indigo);
-      box-shadow: 0 4px 12px var(--indigo-glow);
-    }
 
     .theme-toggle-btn {
       background: var(--input-bg);
@@ -766,141 +762,6 @@
       gap: 8px;
     }
 
-    /* SIMULATOR (SECTION 3) */
-    .simulator-wrap {
-      max-width: 700px;
-      margin: 0 auto;
-    }
-
-    .chat-box {
-      background: #efeae2;
-      border-radius: 20px;
-      overflow: hidden;
-      border: 1px solid var(--card-border);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .chat-header {
-      background: #075e54;
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      color: #fff;
-    }
-    .chat-avatar {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #25d366;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      color: #fff;
-    }
-    .chat-header-info h5 {
-      font-size: 15px;
-      font-weight: 700;
-    }
-    .chat-header-info p {
-      font-size: 11.5px;
-      color: rgba(255, 255, 255, 0.85);
-    }
-
-    .chat-messages {
-      height: 340px;
-      padding: 20px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
-      background-size: 16px 16px;
-      background-color: #f0f2f5;
-    }
-
-    .chat-bubble {
-      max-width: 80%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 14px;
-      line-height: 1.5;
-      animation: popIn 0.2s ease;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-    .bubble-user {
-      align-self: flex-end;
-      background: #d9fdd3;
-      color: #111b21;
-      border-bottom-right-radius: 2px;
-    }
-    .bubble-agent {
-      align-self: flex-start;
-      background: #ffffff;
-      color: #111b21;
-      border-bottom-left-radius: 2px;
-    }
-
-    .typing-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 10px 14px;
-      background: #ffffff;
-      border-radius: 12px;
-      align-self: flex-start;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    }
-    .typing-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: #64748b;
-      animation: bounce 1.2s infinite ease-in-out;
-    }
-    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce {
-      0%, 80%, 100% { transform: translateY(0); }
-      40% { transform: translateY(-5px); }
-    }
-
-    .chat-input-bar {
-      display: flex;
-      padding: 12px 16px;
-      background: #f0f2f5;
-      border-top: 1px solid #e2e8f0;
-      gap: 10px;
-    }
-    .chat-input {
-      flex: 1;
-      background: #fff;
-      border: 1px solid #cbd5e1;
-      border-radius: 24px;
-      padding: 12px 20px;
-      color: #111b21;
-      font-family: var(--font);
-      font-size: 14px;
-      outline: none;
-    }
-    .chat-input:focus {
-      border-color: #075e54;
-    }
-    .chat-send-btn {
-      background: #00a884;
-      color: #fff;
-      border: none;
-      border-radius: 24px;
-      padding: 0 20px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 14px;
-      transition: background 0.2s ease;
-    }
-    .chat-send-btn:hover {
-      background: #075e54;
-    }
 
     /* Modals */
     .modal-overlay {
@@ -1032,7 +893,7 @@
       </div>
     </section>
 
-    <!-- SECTION NAVIGATION (2 Main Dedicated Sections + Live Simulator) -->
+    <!-- SECTION NAVIGATION (2 Main Dedicated Sections) -->
     <div class="section-nav-wrapper">
       <div class="section-tabs">
         <button class="tab-btn active" id="tabInput" onclick="switchSection('input')">
@@ -1041,9 +902,6 @@
         <button class="tab-btn" id="tabManage" onclick="switchSection('manage')">
           <span>📊 ২. ডাটা ম্যানেজমেন্ট (তালিকা)</span>
           <span id="tabCountBadge" style="background:rgba(0,0,0,0.06); padding:2px 8px; border-radius:12px; font-size:12px;">0</span>
-        </button>
-        <button class="tab-btn tab-indigo" id="tabSim" onclick="switchSection('sim')">
-          <span>🧪 ৩. বট সিমুলেটর (টেস্ট)</span>
         </button>
       </div>
 
@@ -1166,40 +1024,6 @@
       </div>
     </section>
 
-    <!-- =========================================================
-         SECTION 3: BOT SIMULATOR (LIVE TEST PLAYGROUND)
-         ========================================================= -->
-    <section id="sectionSim" class="section-content">
-      <div class="simulator-wrap">
-        <div class="chat-box">
-          <div class="chat-header" style="display:flex; align-items:center; justify-content:space-between;">
-            <div style="display:flex; align-items:center; gap:12px;">
-              <div class="chat-avatar">🤖</div>
-              <div class="chat-header-info">
-                <h5>Agent Riad — WhatsApp AI Bot</h5>
-                <p>লাইভ টেস্ট জোন · কি-ওয়ার্ড ও মাল্টি-স্টেপ ফলো-আপ টেস্ট</p>
-              </div>
-            </div>
-            <button class="btn btn-ghost" style="padding:4px 10px; font-size:12px;" onclick="clearSimulatorChat()">
-              🔄 চ্যাট ক্লিয়ার
-            </button>
-          </div>
-
-          <div class="chat-messages" id="chatMessages">
-            <div class="chat-bubble bubble-agent">
-              আসসালামু আলাইকুম! আমি Agent Riad। আপনি যেকোনো প্রশ্ন লিখে টেস্ট করতে পারেন।
-            </div>
-          </div>
-
-          <div class="chat-input-bar">
-            <input type="text" id="simulatorInput" class="chat-input" 
-                   placeholder="যেমন: ভাইয়া কোর্স ফি কত? অথবা Course price please?" 
-                   onkeydown="if(event.key==='Enter') sendSimulatorMessage()">
-            <button class="chat-send-btn" onclick="sendSimulatorMessage()">পাঠান</button>
-          </div>
-        </div>
-      </div>
-    </section>
 
   </main>
 
@@ -1326,7 +1150,7 @@
       }
     }
 
-    // Section Switching (Tab 1: Input, Tab 2: Manage, Tab 3: Sim)
+    // Section Switching (Tab 1: Input, Tab 2: Manage)
     function switchSection(sectionId) {
       document.querySelectorAll('.section-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -1338,9 +1162,6 @@
         document.getElementById('sectionManage').classList.add('active');
         document.getElementById('tabManage').classList.add('active');
         renderRulesList();
-      } else if (sectionId === 'sim') {
-        document.getElementById('sectionSim').classList.add('active');
-        document.getElementById('tabSim').classList.add('active');
       }
       window.scrollTo({ top: 140, behavior: 'smooth' });
     }
@@ -1779,106 +1600,6 @@
       showToast('⚠️ ক্লাউড সিঙ্ক করতে সমস্যা হয়েছে, লোকাল ক্যাশ প্রদর্শিত হচ্ছে।', 'error');
     }
 
-    // Simulator Playground with Multi-Turn Flow Testing
-    function clearSimulatorChat() {
-      const chat = document.getElementById('chatMessages');
-      chat.innerHTML = '<div class="chat-bubble bubble-agent">আসসালামু আলাইকুম! আমি Agent Riad। যেকোনো প্রশ্ন বা অসম্পূর্ণ প্রশ্ন লিখে টেস্ট করতে পারেন।</div>';
-      try {
-        fetch(`${LOCAL_API}/api/reset-session`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ phone: 'sim_web_user' })
-        });
-      } catch (e) {}
-      showToast('সিমুলেটর চ্যাট ও সেশন রিসেট হয়েছে');
-    }
-
-    async function sendSimulatorMessage() {
-      const input = document.getElementById('simulatorInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      const chat = document.getElementById('chatMessages');
-
-      // User Bubble
-      const userBubble = document.createElement('div');
-      userBubble.className = 'chat-bubble bubble-user';
-      userBubble.innerText = text;
-      chat.appendChild(userBubble);
-      input.value = '';
-      chat.scrollTop = chat.scrollHeight;
-
-      // Typing indicator
-      const typing = document.createElement('div');
-      typing.className = 'typing-indicator';
-      typing.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
-      chat.appendChild(typing);
-      chat.scrollTop = chat.scrollHeight;
-
-      // 1. Direct Call to Local Gateway Multi-Step Engine
-      try {
-        const res = await fetch(`${LOCAL_API}/api/test-match`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, senderPhone: 'sim_web_user' })
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          const waitSec = data.delay || 2;
-
-          setTimeout(() => {
-            typing.remove();
-            const agentBubble = document.createElement('div');
-            agentBubble.className = 'chat-bubble bubble-agent';
-
-            if (data.matched) {
-              if (data.type === 'rule') {
-                agentBubble.innerHTML = `
-                  ${escapeHtml(data.rule.reply_text)}
-                  <div style="font-size:11px; color:#059669; margin-top:6px; font-weight:700;">
-                    ✓ পূর্ণাঙ্গ রুল মিলেছে: [${escapeHtml((data.matchedKeywords || []).join(', '))}]
-                  </div>
-                `;
-              } else if (data.type === 'question') {
-                agentBubble.innerHTML = `
-                  ${escapeHtml(data.text)}
-                  <div style="font-size:11px; color:#4f46e5; margin-top:6px; font-weight:700;">
-                    ❓ স্বয়ংক্রিয় ফলো-আপ প্রশ্ন (অনুপস্থিত: ${escapeHtml(data.missing)})
-                  </div>
-                `;
-              }
-            } else if (data.fallbackEnabled && data.fallback) {
-              agentBubble.innerHTML = `
-                ${escapeHtml(data.fallback)}
-                <div style="font-size:11px; color:#d97706; margin-top:6px; font-weight:700;">
-                  ℹ️ কোনো কি-ওয়ার্ড মেলেনি ➔ ফলব্যাক অটো-রিপ্লাই
-                </div>
-              `;
-            } else {
-              agentBubble.innerHTML = `
-                <span style="color:var(--text-muted); font-style:italic;">
-                  (কোনো কি-ওয়ার্ড মেলেনি এবং ফলব্যাক রিপ্লাই অফ রয়েছে, তাই বট সম্পূর্ণ নীরব রয়েছে।)
-                </span>
-              `;
-            }
-            chat.appendChild(agentBubble);
-            chat.scrollTop = chat.scrollHeight;
-          }, Math.min(waitSec, 2) * 1000);
-          return;
-        }
-      } catch (e) {}
-
-      // Fallback if local server is unreachable
-      setTimeout(() => {
-        typing.remove();
-        const agentBubble = document.createElement('div');
-        agentBubble.className = 'chat-bubble bubble-agent';
-        agentBubble.innerHTML = '<span style="color:var(--danger); font-size:12px;">⚠️ লোকাল গেটওয়ে সার্ভার সক্রিয় নেই। অনুগ্রহ করে run-agent.bat চালু করুন।</span>';
-        chat.appendChild(agentBubble);
-        chat.scrollTop = chat.scrollHeight;
-      }, 500);
-    }
 
     // QR Modal Controls
     let qrPollInterval = null;
