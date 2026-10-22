@@ -810,7 +810,7 @@
         <span id="statusText">Gateway চেকিং...</span>
       </div>
 
-      <button class="btn btn-ghost" onclick="syncCloudRules()">
+      <button class="btn btn-ghost" onclick="fetchData()">
         <span>☁️ D1 সিঙ্ক</span>
       </button>
 
@@ -828,10 +828,10 @@
     <div class="section-nav-wrapper">
       <div class="section-tabs">
         <button class="tab-btn active" id="tabInput" onclick="switchSection('input')">
-          <span>✍️ ১. ডাটা ইনপুট (ট্রেনিং)</span>
+          <span>✍️ ১. ডাটা ইনপুট (Title & Description)</span>
         </button>
         <button class="tab-btn" id="tabManage" onclick="switchSection('manage')">
-          <span>📊 ২. ডাটা ম্যানেজমেন্ট (তালিকা)</span>
+          <span>📊 ২. ডাটাবেজ ম্যানেজমেন্ট (agent_data)</span>
           <span id="tabCountBadge" style="background:rgba(0,0,0,0.06); padding:2px 8px; border-radius:12px; font-size:12px;">0</span>
         </button>
       </div>
@@ -843,66 +843,40 @@
     </div>
 
     <!-- =========================================================
-         SECTION 1: DATA INPUT / TRAINING ZONE
+         SECTION 1: DATA INPUT (Title & Description Architecture)
          ========================================================= -->
     <section id="sectionInput" class="section-content active">
       <div class="panel" style="max-width: 850px; margin: 0 auto;">
         <div class="panel-header">
           <div class="panel-title">
-            <span>✍️</span> নতুন অটো-রিপ্লাই ট্রেইন করুন
-            <span class="sub" id="formModeText">— নতুন নিয়ম যোগ করার ফর্ম</span>
+            <span>✍️</span> কোর্স বা অ্যাকাডেমিক তথ্য যোগ করুন
+            <span class="sub" id="formModeText">— Cloudflare D1 (agent_data) টেবিলে সেভ হবে</span>
           </div>
           <button id="cancelEditBtn" class="btn btn-ghost" style="display:none;" onclick="resetForm()">বাতিল</button>
         </div>
 
-        <form id="ruleForm" onsubmit="handleSaveRule(event)">
-          <input type="hidden" id="editRuleId" value="">
+        <form id="dataForm" onsubmit="handleSaveData(event)">
+          <input type="hidden" id="editDataId" value="">
 
           <div class="form-group">
-            <label>রুল শিরোনাম বা টপিক <span class="required">*</span></label>
-            <input type="text" id="ruleTitle" class="form-control" placeholder="যেমন: কোর্স ফি ও ভর্তি তথ্য" required>
-            <div class="input-hint">আপনার সুবিধার্থে এই অটো-রিপ্লাইটির একটি নাম দিন।</div>
+            <label>কোর্সের বিষয় বা শিরোনাম (Title) <span class="required">*</span></label>
+            <input type="text" id="dataTitle" class="form-control" placeholder="যেমন: BBA 2nd Year Accounting অথবা Monthly Batch (মাসিক ব্যাচ)" required>
+            <div class="input-hint">কোর্সের নাম, প্রতিষ্ঠান, বর্ষ ও ডিপার্টমেন্ট বা বিষয়ের নাম লিখুন।</div>
           </div>
 
-          <!-- INTERACTIVE KEYWORD TAG INPUT (NO COMMAS NEEDED) -->
           <div class="form-group">
-            <label>টার্গেট কি-ওয়ার্ডসমূহ (Tag Add System) <span class="required">*</span></label>
-            
-            <div class="tags-input-container" id="tagsContainer" onclick="focusTagInput()">
-              <!-- Dynamic keyword tags render here -->
-            </div>
-
-            <div class="tag-input-row">
-              <input type="text" id="tagInputField" class="form-control tag-input-field" 
-                     placeholder="শব্দ বা বাক্য লিখুন (যেমন: কোর্স ফি, কত টাকা, price) এবং Enter প্রেস করুন..."
-                     onkeydown="handleTagKeydown(event)">
-              <button type="button" class="btn-add-tag" onclick="addTagFromInput()">➕ যুক্ত করুন</button>
-            </div>
+            <label>কোর্সের বিবরণ ও ফি (Description) <span class="required">*</span></label>
+            <textarea id="dataDescription" class="form-control" style="min-height: 150px; line-height: 1.6;" placeholder="রেগুলার ফি, বর্তমান অফার ফি, শেষ কনসেশন প্রাইস ও ক্লাসের সুবিধাসমূহ বিস্তারিত লিখুন..." required></textarea>
             <div class="input-hint">
-              💡 <b>সহজ নিয়ম:</b> কোনো কমা (,) দেওয়া লাগবে না! বক্সে শব্দটি লিখে <b>Enter</b> প্রেস করলেই ট্যাগ যোগ হয়ে যাবে। ভুল হলে ট্যাগের <b>✕</b> বাটনে ক্লিক করে মুছে দিতে পারবেন।
+              💡 <b>কোনো কি-ওয়ার্ড ট্যাগ টাইপ করতে হবে না:</b> Groq LLM স্বয়ংক্রিয়ভাবে শিক্ষার্থীদের যেকোনো স্বাভাবিক ভাষার প্রশ্ন (বাংলা/বাংলিশ) বুঝে এই বিবরণ থেকে নিখুঁত উত্তর প্রদান করবে।
             </div>
-          </div>
-
-          <div class="form-group">
-            <label>স্বয়ংক্রিয় রিপ্লাই মেসেজ <span class="required">*</span></label>
-            <textarea id="ruleReply" class="form-control" placeholder="স্টুডেন্টকে যে উত্তরটি দেওয়া হবে তা এখানে বিস্তারিত লিখুন..." required></textarea>
-            <div class="input-hint">কোর্সের ফি, লিঙ্ক, যোগাযোগের নম্বর বা যেকোনো বিবরণ সুন্দরভাবে লিখতে পারেন।</div>
-          </div>
-
-          <div class="form-group">
-            <label>রিপ্লাই ডিলে (হিউম্যান টাইমিং)</label>
-            <div class="slider-container">
-              <input type="range" id="ruleDelay" min="1" max="10" step="1" value="3" oninput="updateDelayDisplay(this.value)">
-              <div class="slider-val" id="delayValText">3s</div>
-            </div>
-            <div class="input-hint">মেসেজ পাওয়ার পর ঠিক কত সেকেন্ড অপেক্ষা করে মানুষের মতো "Typing..." দেখিয়ে রিপ্লাই পাঠাবে।</div>
           </div>
 
           <div class="form-group">
             <label class="switch-label">
-              <span><b>রুলটি অবিলম্বে সক্রিয় (Active) রাখুন</b></span>
+              <span><b>তথ্যটি অবিলম্বে সক্রিয় (Active) রাখুন</b></span>
               <div class="switch">
-                <input type="checkbox" id="ruleActive" checked>
+                <input type="checkbox" id="dataActive" checked>
                 <span class="slider"></span>
               </div>
             </label>
@@ -910,7 +884,7 @@
 
           <div style="display:flex; gap:12px; margin-top:28px;">
             <button type="submit" id="saveBtn" class="btn btn-primary" style="flex:1; padding:14px; font-size:15px;">
-              <span>💾 রুলটি ডাটাবেজে সেভ করুন</span>
+              <span>💾 Cloudflare D1-এ সেভ করুন</span>
             </button>
             <button type="button" class="btn btn-ghost" style="padding:14px 20px;" onclick="resetForm()">রিসেট</button>
           </div>
@@ -919,18 +893,18 @@
     </section>
 
     <!-- =========================================================
-         SECTION 2: DATA MANAGEMENT ZONE
+         SECTION 2: DATA MANAGEMENT ZONE (agent_data)
          ========================================================= -->
     <section id="sectionManage" class="section-content">
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
-            <span>📊</span> ডাটা ম্যানেজমেন্ট
-            <span class="sub">— সংরক্ষিত সকল অটো-রিপ্লাই ও কি-ওয়ার্ড তালিকা</span>
+            <span>📊</span> ডাটাবেজ ম্যানেজমেন্ট
+            <span class="sub">— Cloudflare D1 (`agent_data`) টেবিলের সংরক্ষিত সকল তথ্য</span>
           </div>
 
           <button class="btn btn-primary" onclick="switchSection('input')">
-            <span>➕ নতুন রুল যোগ করুন</span>
+            <span>➕ নতুন ডাটা যোগ করুন</span>
           </button>
         </div>
 
@@ -938,7 +912,7 @@
         <div class="manage-controls">
           <div class="search-input-wrap">
             <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" class="form-control" placeholder="কি-ওয়ার্ড, শিরোনাম বা উত্তরের টেক্সট দিয়ে খুঁজুন..." oninput="renderRulesList()">
+            <input type="text" id="searchInput" class="form-control" placeholder="কোর্সের নাম, বিবরণ বা ফি দিয়ে খুঁজুন..." oninput="renderDataList()">
           </div>
 
           <div class="filter-btn-group">
@@ -948,9 +922,9 @@
           </div>
         </div>
 
-        <!-- Rules Grid -->
-        <div class="rules-grid" id="rulesGridContainer">
-          <!-- Dynamic Rule Cards Render Here -->
+        <!-- Data Grid -->
+        <div class="rules-grid" id="dataGridContainer">
+          <!-- Dynamic Data Cards Render Here -->
         </div>
       </div>
     </section>
@@ -980,54 +954,18 @@
   <div id="settingsModal" class="modal-overlay">
     <div class="modal-card" style="text-align:left; max-width:540px;">
       <button class="modal-close" onclick="closeSettingsModal()">✕</button>
-      <h3 style="margin-bottom:16px; font-size:18px;">⚙️ এজেন্ট ও গেটওয়ে সেটিংস</h3>
+      <h3 style="margin-bottom:16px; font-size:18px;">⚙️ ক্লাউড ও গেটওয়ে সেটিংস</h3>
 
       <div class="form-group">
         <label>Cloudflare Worker API URL</label>
         <input type="text" id="cfgWorkerUrl" class="form-control" value="https://visiondatabox-worker.dreamsicreation.workers.dev">
-        <div class="input-hint">যে ক্লাউডফ্লেয়ার ওয়ার্কারের D1 ডাটাবেজে রুলস সেভ থাকবে।</div>
+        <div class="input-hint">যে ক্লাউডফ্লেয়ার ওয়ার্কারের D1 ডাটাবেজে agent_data সেভ থাকবে।</div>
       </div>
 
       <div class="form-group">
         <label>Local Gateway Server URL</label>
         <input type="text" id="cfgLocalUrl" class="form-control" value="http://localhost:3001">
         <div class="input-hint">আপনার পিসিতে চলা লোকাল নোড জেএস গেটওয়ে।</div>
-      </div>
-
-      <div class="form-group">
-        <label class="switch-label">
-          <span><b>কোনো কি-ওয়ার্ড না মিললে স্বয়ংক্রিয় রিপ্লাই পাঠাবেন?</b></span>
-          <div class="switch">
-            <input type="checkbox" id="cfgFallbackEnabled" onchange="toggleFallbackTextarea(this.checked)">
-            <span class="slider"></span>
-          </div>
-        </label>
-        <div class="input-hint">অন থাকলে নিচে দেওয়া বার্তাটি পাঠানো হবে। অফ থাকলে কোনো কি-ওয়ার্ড না মিললে বট সম্পূর্ণ নীরব থাকবে।</div>
-      </div>
-
-      <div class="form-group" id="fallbackTextareaGroup" style="display:none;">
-        <label>ফলব্যাক রিপ্লাই বার্তা <span class="required">*</span></label>
-        <textarea id="cfgFallbackReply" class="form-control" style="min-height:80px;" placeholder="যেমন: দুঃখিত, আপনার প্রশ্নটি বুঝতে পারিনি। বিস্তারিত তথ্যের জন্য আমাদের সাথে সরাসরি যোগাযোগ করুন।"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label class="switch-label">
-          <span>মেসেজ রিপ্লাইয়ের আগে "Typing..." দেখান</span>
-          <div class="switch">
-            <input type="checkbox" id="cfgTypingIndicator" checked>
-            <span class="slider"></span>
-          </div>
-        </label>
-      </div>
-
-      <div class="form-group">
-        <label class="switch-label">
-          <span>শুধুমাত্র প্রাইভেট চ্যাটে রিপ্লাই দিন (গ্রুপ ইগনোর করুন)</span>
-          <div class="switch">
-            <input type="checkbox" id="cfgOnlyPrivate" checked>
-            <span class="slider"></span>
-          </div>
-        </label>
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
@@ -1045,16 +983,9 @@
     let WORKER_API = localStorage.getItem('agent_worker_url') || 'https://visiondatabox-worker.dreamsicreation.workers.dev';
     let LOCAL_API = localStorage.getItem('agent_local_url') || 'http://localhost:3001';
 
-    let allRules = [];
-    let currentTags = []; // Array of keyword strings for the active form
+    let allData = [];
     let currentFilter = 'all';
     let isGatewayConnected = false;
-    let localSettings = {
-      defaultDelay: 3,
-      typingIndicator: true,
-      onlyPrivate: true,
-      fallbackReply: ''
-    };
 
     // Notification toast
     function showToast(msg, type = 'success') {
@@ -1068,7 +999,7 @@
       }, 4000);
     }
 
-    // Theme Toggle (Default is Day Mode)
+    // Theme Toggle
     function toggleTheme() {
       const isDark = document.body.classList.toggle('dark-mode');
       const btn = document.getElementById('themeBtn');
@@ -1092,82 +1023,9 @@
       } else if (sectionId === 'manage') {
         document.getElementById('sectionManage').classList.add('active');
         document.getElementById('tabManage').classList.add('active');
-        renderRulesList();
+        renderDataList();
       }
       window.scrollTo({ top: 140, behavior: 'smooth' });
-    }
-
-    // Delay Display
-    function updateDelayDisplay(val) {
-      document.getElementById('delayValText').innerText = val + 's';
-    }
-
-    // =========================================================
-    // TAG INPUT SYSTEM (NO COMMAS, CROSS TO REMOVE)
-    // =========================================================
-    function focusTagInput() {
-      document.getElementById('tagInputField').focus();
-    }
-
-    function handleTagKeydown(e) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        addTagFromInput();
-      } else if (e.key === 'Backspace' && !e.target.value && currentTags.length > 0) {
-        // Backspace on empty input removes last tag
-        removeTag(currentTags.length - 1);
-      }
-    }
-
-    function addTagFromInput() {
-      const input = document.getElementById('tagInputField');
-      let val = input.value.trim();
-      if (!val) return;
-
-      // In case user pasted comma-separated text, split them cleanly
-      const parts = val.split(',').map(s => s.trim()).filter(s => s.length > 0);
-      for (const item of parts) {
-        // Normalize: case-insensitive duplicate check
-        const exists = currentTags.some(t => t.toLowerCase() === item.toLowerCase());
-        if (!exists) {
-          currentTags.push(item);
-        }
-      }
-      input.value = '';
-      renderTagChips();
-    }
-
-    function removeTag(index) {
-      currentTags.splice(index, 1);
-      renderTagChips();
-    }
-
-    function renderTagChips() {
-      const container = document.getElementById('tagsContainer');
-      if (currentTags.length === 0) {
-        container.innerHTML = `
-          <span style="color:var(--text-muted); font-size:13.5px; padding:4px 6px;">
-            কোনো কি-ওয়ার্ড ট্যাগ যোগ করা হয়নি। নিচে লিখে '➕ যুক্ত করুন' বা Enter চাপুন।
-          </span>
-        `;
-        return;
-      }
-
-      container.innerHTML = currentTags.map((tag, idx) => `
-        <span class="tag-chip">
-          <span>${escapeHtml(tag)}</span>
-          <span class="remove-tag" onclick="event.stopPropagation(); removeTag(${idx})">✕</span>
-        </span>
-      `).join('');
-    }
-
-    function setTagsFromString(kwStr) {
-      if (!kwStr) {
-        currentTags = [];
-      } else {
-        currentTags = String(kwStr).split(',').map(k => k.trim()).filter(k => k.length > 0);
-      }
-      renderTagChips();
     }
 
     // Gateway Status
@@ -1201,100 +1059,93 @@
       text.innerText = 'Gateway: অফলাইন';
     }
 
-    // Fetch Rules (Prioritize Cloudflare D1 as Single Source of Truth)
-    async function fetchRules() {
+    // Fetch Data from Cloudflare D1
+    async function fetchData() {
       let loaded = false;
 
-      // 1. Fetch from Cloudflare Worker D1
+      // 1. Fetch from Cloudflare Worker D1 /api/agent/data
       try {
-        const res = await fetch(`${WORKER_API}/api/agent/rules`, { signal: AbortSignal.timeout(4000) });
+        const res = await fetch(`${WORKER_API}/api/agent/data`, { signal: AbortSignal.timeout(4000) });
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data.rules)) {
-            allRules = data.rules;
+          const list = data.data || data.rules;
+          if (Array.isArray(list) && list.length > 0) {
+            allData = list.map(item => ({
+              id: item.id,
+              title: item.title || '',
+              description: item.description || item.reply_text || '',
+              is_active: item.is_active !== 0 && item.is_active !== false ? 1 : 0
+            }));
             loaded = true;
           }
         }
       } catch (e) {}
 
-      // 2. Fallback to local server if offline
+      // 2. Fallback to /api/agent/rules if worker not yet redeployed
       if (!loaded) {
         try {
-          const res = await fetch(`${LOCAL_API}/api/rules`, { signal: AbortSignal.timeout(2000) });
+          const res = await fetch(`${WORKER_API}/api/agent/rules`, { signal: AbortSignal.timeout(3500) });
           if (res.ok) {
             const data = await res.json();
-            if (Array.isArray(data.rules)) {
-              allRules = data.rules;
+            const list = data.data || data.rules;
+            if (Array.isArray(list) && list.length > 0) {
+              allData = list.map(item => ({
+                id: item.id,
+                title: item.title || '',
+                description: item.description || item.reply_text || '',
+                is_active: item.is_active !== 0 && item.is_active !== false ? 1 : 0
+              }));
               loaded = true;
             }
           }
         } catch (e) {}
       }
 
-      if (!loaded && allRules.length === 0) {
-        const local = localStorage.getItem('agent_cached_rules');
+      // 3. Fallback to local cache
+      if (!loaded && allData.length === 0) {
+        const local = localStorage.getItem('agent_cached_data');
         if (local) {
-          allRules = JSON.parse(local);
-        } else {
-          allRules = [
-            {
-              id: 1,
-              title: 'কোর্স ও ফি সম্পর্কিত',
-              keywords: 'কোর্স, ফি, কত টাকা, খরচ, দাম, price, fee, cost, admission',
-              reply_text: 'আসসালামু আলাইকুম! আমাদের সকল কোর্স ও ফি সম্পর্কিত বিস্তারিত তথ্য জানতে ভিজিট করুন: https://visionplusbd.com/All_Courses.html অথবা সরাসরি কল করুন।',
-              delay_seconds: 3,
-              is_active: 1
-            },
-            {
-              id: 2,
-              title: 'অভ্যর্থনা / Greeting',
-              keywords: 'hi, hello, hey, সালাম, salam, হ্যালো, হাই, assalamu alaikum',
-              reply_text: 'ওয়ালাইকুম আসসালাম! VISION Plus-এ আপনাকে স্বাগতম। আপনাকে কীভাবে সাহায্য করতে পারি? কোর্স সম্পর্কিত তথ্যের জন্য "কোর্স" লিখে পাঠান।',
-              delay_seconds: 2,
-              is_active: 1
-            }
-          ];
+          try { allData = JSON.parse(local); } catch(e) {}
         }
       }
 
-      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
+      localStorage.setItem('agent_cached_data', JSON.stringify(allData));
       updateMetrics();
-      renderRulesList();
+      renderDataList();
     }
 
     function updateMetrics() {
       const badge = document.getElementById('tabCountBadge');
-      if (badge) badge.innerText = allRules.length;
+      if (badge) badge.innerText = allData.length;
     }
 
     function setFilter(type, btn) {
       currentFilter = type;
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      renderRulesList();
+      renderDataList();
     }
 
-    function renderRulesList() {
-      const container = document.getElementById('rulesGridContainer');
-      const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    function renderDataList() {
+      const container = document.getElementById('dataGridContainer');
+      const search = (document.getElementById('searchInput').value || '').toLowerCase().trim();
 
-      const filtered = allRules.filter(r => {
+      const filtered = allData.filter(r => {
         const isActive = r.is_active !== 0 && r.is_active !== false;
         if (currentFilter === 'active' && !isActive) return false;
         if (currentFilter === 'inactive' && isActive) return false;
 
         const title = String(r.title || '').toLowerCase();
-        const kw = String(r.keywords || '').toLowerCase();
-        const reply = String(r.reply_text || '').toLowerCase();
-        return !search || title.includes(search) || kw.includes(search) || reply.includes(search);
+        const desc = String(r.description || '').toLowerCase();
+        return !search || title.includes(search) || desc.includes(search);
       });
 
       if (filtered.length === 0) {
         container.innerHTML = `
           <div style="grid-column: 1 / -1; text-align:center; padding:60px 20px; color:var(--text-muted);">
             <div style="font-size:42px; margin-bottom:10px;">🔍</div>
-            <h4 style="font-size:16px; color:var(--text); margin-bottom:4px;">কোনো অটো-রিপ্লাই রুল পাওয়া যায়নি</h4>
-            <p style="font-size:13px;">নতুন রুল যোগ করতে "ডাটা ইনপুট" সেকশনে যান।</p>
+            <h4 style="font-size:16px; color:var(--text); margin-bottom:4px;">কোনো ডাটা পাওয়া যায়নি</h4>
+            <p style="font-size:13px;">নতুন কোর্স বা তথ্য যোগ করতে "ডাটা ইনপুট" সেকশনে যান।</p>
           </div>
         `;
         return;
@@ -1302,35 +1153,29 @@
 
       container.innerHTML = filtered.map(r => {
         const isActive = r.is_active !== 0 && r.is_active !== false;
-        const kwList = String(r.keywords || '').split(',').map(k => k.trim()).filter(k => k);
 
         return `
           <div class="rule-card ${isActive ? '' : 'inactive'}" id="card_${r.id}">
             <div class="rule-card-header">
-              <div>
-                <div class="rule-card-title">${escapeHtml(r.title || 'Untitled Rule')}</div>
-                <div style="margin-top:4px;">
-                  <span class="badge badge-delay">⏱️ ${r.delay_seconds || 3}s ডিলে</span>
+              <div style="flex:1;">
+                <div class="rule-card-title">${escapeHtml(r.title || 'Untitled')}</div>
+                <div style="margin-top:6px;">
                   <span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? 'সক্রিয়' : 'নিষ্ক্রিয়'}</span>
                 </div>
               </div>
               <div class="switch">
-                <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleRuleActive(${r.id})">
+                <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleDataActive(${r.id})">
                 <span class="slider"></span>
               </div>
             </div>
 
-            <div class="card-tags-list">
-              ${kwList.map(kw => `<span class="card-tag">🏷️ ${escapeHtml(kw)}</span>`).join('')}
-            </div>
-
-            <div class="rule-card-body">${escapeHtml(r.reply_text || '')}</div>
+            <div class="rule-card-body">${escapeHtml(r.description || '')}</div>
 
             <div class="rule-card-footer">
               <span style="font-size:11.5px; color:var(--text-muted); font-weight:600;">ID: #${r.id}</span>
               <div class="card-actions">
-                <button class="btn btn-ghost" style="padding:5px 12px; font-size:12.5px;" onclick="editRule(${r.id})">✏️ এডিট</button>
-                <button class="btn btn-danger-ghost" style="padding:5px 12px; font-size:12.5px;" onclick="deleteRule(${r.id})">🗑️ ডিলিট</button>
+                <button class="btn btn-ghost" style="padding:5px 12px; font-size:12.5px;" onclick="editData(${r.id})">✏️ এডিট</button>
+                <button class="btn btn-danger-ghost" style="padding:5px 12px; font-size:12.5px;" onclick="deleteData(${r.id})">🗑️ ডিলিট</button>
               </div>
             </div>
           </div>
@@ -1344,34 +1189,22 @@
       return div.innerHTML;
     }
 
-    // Save Rule
-    async function handleSaveRule(e) {
+    // Save Data
+    async function handleSaveData(e) {
       e.preventDefault();
-      const id = document.getElementById('editRuleId').value;
-      const title = document.getElementById('ruleTitle').value.trim();
-      const reply = document.getElementById('ruleReply').value.trim();
-      const delay = Number(document.getElementById('ruleDelay').value) || 3;
-      const isActive = document.getElementById('ruleActive').checked ? 1 : 0;
+      const id = document.getElementById('editDataId').value;
+      const title = document.getElementById('dataTitle').value.trim();
+      const description = document.getElementById('dataDescription').value.trim();
+      const isActive = document.getElementById('dataActive').checked ? 1 : 0;
 
-      // If user forgot to click add on the input field but typed text
-      const pendingTag = document.getElementById('tagInputField').value.trim();
-      if (pendingTag) {
-        addTagFromInput();
-      }
-
-      if (currentTags.length === 0) {
-        showToast('⚠️ অনুগ্রহ করে অন্তত একটি কি-ওয়ার্ড ট্যাগ যোগ করুন!', 'error');
-        focusTagInput();
+      if (!title || !description) {
+        showToast('⚠️ শিরোনাম এবং বিবরণ উভয়ই দেওয়া আবশ্যক!', 'error');
         return;
       }
 
-      const keywordsStr = currentTags.join(', ');
-
       const payload = {
         title,
-        keywords: keywordsStr,
-        reply_text: reply,
-        delay_seconds: delay,
+        description,
         is_active: isActive
       };
 
@@ -1383,9 +1216,8 @@
       }
 
       let saveOk = false;
-      // Send ONLY ONCE directly to Cloudflare Worker D1 (No duplicate records!)
       try {
-        const wUrl = id ? `${WORKER_API}/api/agent/rules/${id}` : `${WORKER_API}/api/agent/rules`;
+        const wUrl = id ? `${WORKER_API}/api/agent/data/${id}` : `${WORKER_API}/api/agent/data`;
         const method = id ? 'PUT' : 'POST';
         const res = await fetch(wUrl, {
           method,
@@ -1397,7 +1229,7 @@
         console.error('Save to Worker failed:', e);
       }
 
-      // Notify local gateway to sync in-memory cache from D1 immediately
+      // Notify local gateway to clear in-memory cache
       try {
         await fetch(`${LOCAL_API}/api/sync-now`, { method: 'POST' });
       } catch (e) {}
@@ -1408,314 +1240,123 @@
       }
 
       if (saveOk) {
-        showToast(id ? '✅ রুলটি সফলভাবে আপডেট হয়েছে!' : '🎉 নতুন রুল Cloudflare D1-এ সংরক্ষিত হয়েছে!');
+        showToast(id ? '✅ ডাটা সফলভাবে আপডেট হয়েছে!' : '🎉 নতুন ডাটা Cloudflare D1-এ সংরক্ষিত হয়েছে!');
       } else {
         showToast('ক্লাউড ডাটাবেজে সংরক্ষণ করা সম্ভব হয়নি!', 'error');
       }
 
-      // Reload fresh rules directly from Cloudflare Worker to avoid duplicates
-      await fetchRules();
+      await fetchData();
       resetForm();
       switchSection('manage');
     }
 
-    function editRule(id) {
-      const rule = allRules.find(r => String(r.id) === String(id));
-      if (!rule) return;
+    function editData(id) {
+      const item = allData.find(r => String(r.id) === String(id));
+      if (!item) return;
 
-      document.getElementById('editRuleId').value = rule.id;
-      document.getElementById('ruleTitle').value = rule.title || '';
-      document.getElementById('ruleReply').value = rule.reply_text || '';
-      document.getElementById('ruleDelay').value = rule.delay_seconds || 3;
-      updateDelayDisplay(rule.delay_seconds || 3);
-      document.getElementById('ruleActive').checked = rule.is_active !== 0 && rule.is_active !== false;
-
-      // Populate interactive tags
-      setTagsFromString(rule.keywords || '');
+      document.getElementById('editDataId').value = item.id;
+      document.getElementById('dataTitle').value = item.title || '';
+      document.getElementById('dataDescription').value = item.description || '';
+      document.getElementById('dataActive').checked = item.is_active !== 0 && item.is_active !== false;
 
       document.getElementById('cancelEditBtn').style.display = 'inline-flex';
-      document.getElementById('formModeText').innerText = `— #${rule.id} রুলটি সম্পাদনা করছেন`;
+      document.getElementById('formModeText').innerText = `— #${item.id} তথ্যটি সম্পাদনা করছেন`;
       document.getElementById('saveBtn').innerHTML = '<span>💾 পরিবর্তন সেভ করুন</span>';
 
-      // Switch to Input Section
       switchSection('input');
     }
 
     function resetForm() {
-      document.getElementById('ruleForm').reset();
-      document.getElementById('editRuleId').value = '';
-      currentTags = [];
-      renderTagChips();
-      updateDelayDisplay(3);
+      document.getElementById('dataForm').reset();
+      document.getElementById('editDataId').value = '';
       document.getElementById('cancelEditBtn').style.display = 'none';
-      document.getElementById('formModeText').innerText = '— নতুন নিয়ম যোগ করার ফর্ম';
-      document.getElementById('saveBtn').innerHTML = '<span>💾 রুলটি ডাটাবেজে সেভ করুন</span>';
+      document.getElementById('formModeText').innerText = '— Cloudflare D1 (agent_data) টেবিলে সেভ হবে';
+      document.getElementById('saveBtn').innerHTML = '<span>💾 Cloudflare D1-এ সেভ করুন</span>';
     }
 
-    async function toggleRuleActive(id) {
-      const idx = allRules.findIndex(r => String(r.id) === String(id));
-      if (idx === -1) return;
-
-      const current = allRules[idx].is_active;
-      const next = (current === 1 || current === true) ? 0 : 1;
-      allRules[idx].is_active = next;
-
-      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
-      updateMetrics();
-      renderRulesList();
-
+    async function toggleDataActive(id) {
       try {
-        // Toggle only once on Cloudflare Worker D1
-        await fetch(`${WORKER_API}/api/agent/rules/${id}/toggle`, { method: 'POST' });
-        // Sync local memory
-        await fetch(`${LOCAL_API}/api/sync-now`, { method: 'POST' });
-      } catch (e) {}
-
-      showToast(next ? 'রুলটি সক্রিয় করা হয়েছে' : 'রুলটি নিষ্ক্রিয় করা হয়েছে');
+        await fetch(`${WORKER_API}/api/agent/data/${id}/toggle`, { method: 'POST' });
+        try { await fetch(`${LOCAL_API}/api/sync-now`, { method: 'POST' }); } catch(e){}
+        const item = allData.find(r => String(r.id) === String(id));
+        if (item) item.is_active = item.is_active === 1 ? 0 : 1;
+        renderDataList();
+        showToast('স্ট্যাটাস পরিবর্তিত হয়েছে');
+      } catch (e) {
+        showToast('স্ট্যাটাস পরিবর্তন করা সম্ভব হয়নি', 'error');
+      }
     }
 
-    async function deleteRule(id) {
-      if (!confirm('আপনি কি নিশ্চিত যে এই রুলটি মুছে ফেলতে চান?')) return;
-
-      allRules = allRules.filter(r => String(r.id) !== String(id));
-      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
-      updateMetrics();
-      renderRulesList();
+    async function deleteData(id) {
+      if (!confirm(`আপনি কি নিশ্চিতভাবে #${id} ডাটাটি মুছে ফেলতে চান?`)) return;
 
       try {
-        // Delete only once on Cloudflare Worker D1
-        await fetch(`${WORKER_API}/api/agent/rules/${id}`, { method: 'DELETE' });
-        // Sync local memory
-        await fetch(`${LOCAL_API}/api/sync-now`, { method: 'POST' });
-      } catch (e) {}
-
-      localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
-      updateMetrics();
-      renderRulesList();
-      showToast('রুলটি মুছে ফেলা হয়েছে');
-    }
-
-    // Cloudflare D1 Manual Sync
-    async function syncCloudRules() {
-      showToast('☁️ Cloudflare D1 থেকে ডাটা আনা হচ্ছে...', 'warning');
-      try {
-        const res = await fetch(`${WORKER_API}/api/agent/rules`);
+        const res = await fetch(`${WORKER_API}/api/agent/data/${id}`, { method: 'DELETE' });
         if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data.rules)) {
-            allRules = data.rules;
-            localStorage.setItem('agent_cached_rules', JSON.stringify(allRules));
-            updateMetrics();
-            renderRulesList();
-            showToast(`✅ ${allRules.length}টি রুল সফলভাবে সিঙ্ক হয়েছে!`);
-            return;
-          }
+          try { await fetch(`${LOCAL_API}/api/sync-now`, { method: 'POST' }); } catch(e){}
+          allData = allData.filter(r => String(r.id) !== String(id));
+          localStorage.setItem('agent_cached_data', JSON.stringify(allData));
+          updateMetrics();
+          renderDataList();
+          showToast('ডাটা মুছে ফেলা হয়েছে');
+        } else {
+          showToast('ডাটা মোছা সম্ভব হয়নি', 'error');
         }
-      } catch (e) {}
-      showToast('⚠️ ক্লাউড সিঙ্ক করতে সমস্যা হয়েছে, লোকাল ক্যাশ প্রদর্শিত হচ্ছে।', 'error');
+      } catch (e) {
+        showToast('সার্ভার এরর!', 'error');
+      }
     }
 
-
-    // QR Modal Controls
-    let qrPollInterval = null;
-    async function openQrModal() {
-      const modal = document.getElementById('qrModal');
-      modal.classList.add('open');
-      loadQrCode();
-      qrPollInterval = setInterval(loadQrCode, 4000);
+    // Modal controls
+    function openQrModal() {
+      document.getElementById('qrModal').classList.add('active');
+      fetchQrCode();
     }
-
     function closeQrModal() {
-      document.getElementById('qrModal').classList.remove('open');
-      if (qrPollInterval) clearInterval(qrPollInterval);
+      document.getElementById('qrModal').classList.remove('active');
+    }
+    function openSettingsModal() {
+      document.getElementById('cfgWorkerUrl').value = WORKER_API;
+      document.getElementById('cfgLocalUrl').value = LOCAL_API;
+      document.getElementById('settingsModal').classList.add('active');
+    }
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.remove('active');
     }
 
-    async function loadQrCode() {
+    async function fetchQrCode() {
       const wrap = document.getElementById('qrImageWrap');
-      const footer = document.getElementById('qrFooterText');
-
       try {
         const res = await fetch(`${LOCAL_API}/qr`);
         if (res.ok) {
           const data = await res.json();
           if (data.connected) {
-            wrap.innerHTML = `
-              <div style="text-align:center; padding:12px 4px; color:#059669;">
-                <div style="font-size:46px; margin-bottom:6px;">✅</div>
-                <h4 style="margin:0 0 4px; font-size:17px; font-weight:800;">WhatsApp সংযুক্ত রয়েছে</h4>
-                <p style="font-size:13px; color:#64748b; margin:0 0 16px;">নম্বর: <b style="color:var(--text);">${data.phone || 'Online'}</b></p>
-                <button type="button" class="btn btn-danger" onclick="unlinkWhatsAppDevice()" style="width:100%; padding:10px 14px; font-size:13px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; gap:6px;">
-                  <span>🔌</span> পূর্বের ডিভাইস আনলিঙ্ক / বাদ দিন
-                </button>
-              </div>
-            `;
-            footer.innerText = 'নতুন ডিভাইস যুক্ত করতে চাইলে ওপরের বাটনে ক্লিক করে আনলিঙ্ক করুন।';
-            return;
-          }
-
-          if (data.qrImage) {
-            wrap.innerHTML = `<img src="${data.qrImage}" alt="QR" style="display:block; width:220px; height:220px;">`;
-            footer.innerText = 'আপনার ফোনে স্ক্যান করে কানেক্ট করুন।';
-            return;
+            wrap.innerHTML = `<span style="color:var(--primary); font-weight:700;">✅ সংযুক্ত আছে (${data.phone})</span>`;
+          } else if (data.qrImage) {
+            wrap.innerHTML = `<img src="${data.qrImage}" style="width:230px; height:230px; display:block;" />`;
           }
         }
       } catch (e) {}
-
-      wrap.innerHTML = `
-        <div style="text-align:center; padding:15px; color:#ef4444;">
-          <div style="font-size:32px;">⚠️</div>
-          <p style="font-size:12px; margin-top:6px;">লোকাল গেটওয়ে অফলাইন।<br><b>run-agent.bat</b> ফাইলটি রান করুন।</p>
-        </div>
-      `;
     }
 
-    async function unlinkWhatsAppDevice() {
-      if (!confirm('আপনি কি নিশ্চিতভাবে বর্তমান WhatsApp ডিভাইসটি বাদ/আনলিঙ্ক করতে চান?\\n\\nএর ফলে বর্তমান সংযোগ কেটে যাবে এবং নতুন ডিভাইসের জন্য ফ্রেশ QR কোড চলে আসবে।')) {
-        return;
-      }
-
-      const wrap = document.getElementById('qrImageWrap');
-      const footer = document.getElementById('qrFooterText');
-      wrap.innerHTML = `
-        <div style="text-align:center; padding:24px 10px; color:var(--text-muted);">
-          <div style="font-size:32px;">⏳</div>
-          <p style="font-size:13.5px; margin-top:10px; font-weight:700; color:var(--text);">ডিভাইস আনলিঙ্ক হচ্ছে...</p>
-          <p style="font-size:12px; margin-top:4px; color:var(--text-muted);">নতুন QR কোড তৈরি হচ্ছে, অনুগ্রহ করে অপেক্ষা করুন...</p>
-        </div>
-      `;
-      footer.innerText = 'নতুন QR কোড জেনারেট হচ্ছে...';
-
-      try {
-        const res = await fetch(`${LOCAL_API}/api/unlink`, { method: 'POST' });
-        const data = await res.json();
-        showToast(data.message || 'ডিভাইস সফলভাবে আনলিঙ্ক করা হয়েছে');
-        setTimeout(loadQrCode, 1500);
-      } catch (err) {
-        showToast('ডিভাইস আনলিঙ্ক করতে সমস্যা হয়েছে', 'error');
-        setTimeout(loadQrCode, 2000);
-      }
-    }
-
-    // Settings Modal
-    function toggleFallbackTextarea(show) {
-      const el = document.getElementById('fallbackTextareaGroup');
-      if (el) el.style.display = show ? 'block' : 'none';
-    }
-
-    async function openSettingsModal() {
-      document.getElementById('cfgWorkerUrl').value = WORKER_API;
-      document.getElementById('cfgLocalUrl').value = LOCAL_API;
-      document.getElementById('settingsModal').classList.add('open');
-
-      // Fetch live settings directly from Cloudflare D1
-      try {
-        const res = await fetch(WORKER_API + '/api/agent/settings');
-        if (res.ok) {
-          const data = await res.json();
-          if (data.settings && Object.keys(data.settings).length > 0) {
-            localSettings = { ...localSettings, ...data.settings };
-            localStorage.setItem('agent_settings', JSON.stringify(localSettings));
-          }
-        }
-      } catch (e) {}
-
-      const isFallbackOn = (localSettings.fallbackEnabled === 'true' || localSettings.fallbackEnabled === true);
-      const fbCheck = document.getElementById('cfgFallbackEnabled');
-      if (fbCheck) fbCheck.checked = isFallbackOn;
-      toggleFallbackTextarea(isFallbackOn);
-
-      document.getElementById('cfgFallbackReply').value = localSettings.fallbackReply || '';
-      document.getElementById('cfgTypingIndicator').checked = (localSettings.typingIndicator === 'true' || localSettings.typingIndicator === true || localSettings.typingIndicator !== false);
-      document.getElementById('cfgOnlyPrivate').checked = (localSettings.onlyPrivate === 'true' || localSettings.onlyPrivate === true || localSettings.onlyPrivate !== false);
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settingsModal').classList.remove('open');
-    }
-
-    async function saveSettings() {
-      const saveBtn = document.getElementById('saveSettingsBtn');
-      if (saveBtn) {
-        saveBtn.innerText = 'D1-এ সেভ হচ্ছে...';
-        saveBtn.disabled = true;
-      }
-
-      WORKER_API = document.getElementById('cfgWorkerUrl').value.trim();
-      LOCAL_API = document.getElementById('cfgLocalUrl').value.trim();
-
-      const isFallbackOn = document.getElementById('cfgFallbackEnabled') ? document.getElementById('cfgFallbackEnabled').checked : false;
-
-      const payload = {
-        fallbackEnabled: isFallbackOn ? 'true' : 'false',
-        fallbackReply: document.getElementById('cfgFallbackReply').value.trim(),
-        typingIndicator: document.getElementById('cfgTypingIndicator').checked ? 'true' : 'false',
-        onlyPrivate: document.getElementById('cfgOnlyPrivate').checked ? 'true' : 'false',
-        defaultDelay: String(localSettings.defaultDelay || '3')
-      };
-
-      localSettings = { ...localSettings, ...payload };
+    function saveSettings() {
+      WORKER_API = document.getElementById('cfgWorkerUrl').value.trim() || WORKER_API;
+      LOCAL_API = document.getElementById('cfgLocalUrl').value.trim() || LOCAL_API;
       localStorage.setItem('agent_worker_url', WORKER_API);
       localStorage.setItem('agent_local_url', LOCAL_API);
-      localStorage.setItem('agent_settings', JSON.stringify(localSettings));
-
-      let d1Saved = false;
-
-      // 1. Direct Save to Cloudflare D1 Database (Single Request)
-      try {
-        const wRes = await fetch(WORKER_API + '/api/agent/settings', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        if (wRes.ok) {
-          const wData = await wRes.json();
-          if (wData.success) d1Saved = true;
-        }
-      } catch (e) {
-        console.error('Error saving settings to Worker D1:', e);
-      }
-
-      // 2. Notify local server to sync in-memory settings (No second D1 write)
-      try {
-        await fetch(LOCAL_API + '/api/sync-now', { method: 'POST' });
-      } catch (e) {}
-
-      if (saveBtn) {
-        saveBtn.innerText = 'সেভ সেটিংস';
-        saveBtn.disabled = false;
-      }
-
       closeSettingsModal();
-
-      if (d1Saved) {
-        showToast('সেটিংস Cloudflare D1 ডাটাবেজে সফলভাবে সংরক্ষিত হয়েছে!');
-      } else {
-        showToast('সেটিংস লোকালি সেভ হয়েছে, D1 কানেকশন চেক করুন।', 'warning');
-      }
+      showToast('সেটিংস সংরক্ষিত হয়েছে!');
+      fetchData();
     }
 
     window.addEventListener('DOMContentLoaded', () => {
-      // Check saved theme
       const savedTheme = localStorage.getItem('agent_theme');
       if (savedTheme === 'dark') {
         document.body.classList.add('dark-mode');
         document.getElementById('themeBtn').innerHTML = '<span>🌙 ডার্ক মোড</span>';
       }
 
-      const savedSettings = localStorage.getItem('agent_settings');
-      if (savedSettings) localSettings = JSON.parse(savedSettings);
-
-      renderTagChips();
-      fetchRules();
-      // Auto-load live settings from Cloudflare D1
-      fetch(WORKER_API + '/api/agent/settings')
-        .then(r => r.json())
-        .then(d => {
-          if (d && d.settings && Object.keys(d.settings).length > 0) {
-            localSettings = { ...localSettings, ...d.settings };
-            localStorage.setItem('agent_settings', JSON.stringify(localSettings));
-          }
-        }).catch(() => {});
+      fetchData();
       checkGatewayStatus();
       setInterval(checkGatewayStatus, 5000);
     });
