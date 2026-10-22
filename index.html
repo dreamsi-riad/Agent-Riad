@@ -979,8 +979,14 @@
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
-          <label id="modalApiKeyLabel" style="font-size:12.5px; font-weight:700;">Groq API Key</label>
-          <input type="password" id="modalApiKeyInput" class="form-control" style="font-size:13px;" placeholder="API Key লিখুন...">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <label id="modalApiKeyLabel" style="font-size:12.5px; font-weight:700; margin-bottom:0;">Groq API Key</label>
+            <span id="modalApiKeyStatus" style="font-size:11px; color:var(--primary); font-weight:600;">✓ সংরক্ষিত</span>
+          </div>
+          <div style="position:relative; display:flex; align-items:center;">
+            <input type="password" id="modalApiKeyInput" class="form-control" style="font-size:13px; padding-right:42px; font-family:monospace;" placeholder="API Key লিখুন..." oninput="onModalApiKeyInput(this.value)">
+            <button type="button" id="modalKeyToggleBtn" style="position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:15px; padding:4px 6px;" onclick="toggleModalKeyVisibility()" title="Show/Hide API Key">👁️</button>
+          </div>
         </div>
       </div>
 
@@ -1101,7 +1107,7 @@
     let currentFilter = 'all';
     let isGatewayConnected = false;
     let localSettings = {
-      defaultDelay: 3,
+      replyDelay: 7,
       typingIndicator: true,
       onlyPrivate: true,
       fallbackEnabled: false,
@@ -1454,12 +1460,29 @@
       if (el) el.innerText = val + 's';
     }
 
-    let modalAiConfig = {
+    const DEFAULT_AI_CONFIG = {
       provider: 'groq',
       selectedModel: 'openai/gpt-oss-20b',
       groqApiKey: '',
-      geminiApiKey: ''
+      geminiApiKey: '',
+      replyDelay: 7
     };
+
+    function getLocalAiConfig() {
+      try {
+        const stored = localStorage.getItem('agent_ai_config');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          return {
+            ...DEFAULT_AI_CONFIG,
+            ...parsed
+          };
+        }
+      } catch (e) {}
+      return { ...DEFAULT_AI_CONFIG };
+    }
+
+    let modalAiConfig = getLocalAiConfig();
     const MODAL_SUPPORTED_MODELS = {
       groq: [
         { id: 'openai/gpt-oss-20b', name: 'OpenAI GPT-OSS 20B (আল্ট্রা ফাস্ট - ডিফল্ট)' },
@@ -1475,13 +1498,61 @@
       ]
     };
 
+    function toggleModalKeyVisibility() {
+      const input = document.getElementById('modalApiKeyInput');
+      const btn = document.getElementById('modalKeyToggleBtn');
+      if (!input) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        if (btn) btn.innerText = '🙈';
+      } else {
+        input.type = 'password';
+        if (btn) btn.innerText = '👁️';
+      }
+    }
+
+    function onModalApiKeyInput(val) {
+      val = (val || '').trim();
+      if (modalAiConfig.provider === 'gemini') {
+        modalAiConfig.geminiApiKey = val;
+      } else {
+        modalAiConfig.groqApiKey = val;
+      }
+      try {
+        localStorage.setItem('agent_ai_config', JSON.stringify(modalAiConfig));
+      } catch (e) {}
+      updateApiKeyStatusBadge();
+    }
+
+    function updateApiKeyStatusBadge() {
+      const statusEl = document.getElementById('modalApiKeyStatus');
+      if (!statusEl) return;
+      const key = modalAiConfig.provider === 'gemini' ? modalAiConfig.geminiApiKey : modalAiConfig.groqApiKey;
+      if (key && key.trim().length > 5) {
+        statusEl.innerText = '✓ কী যুক্ত আছে';
+        statusEl.style.color = 'var(--primary)';
+      } else {
+        statusEl.innerText = '⚠️ কী প্রয়োজন';
+        statusEl.style.color = 'var(--danger)';
+      }
+    }
+
     function switchModalEngine(prov) {
+      // Preserve currently typed key if any
+      const keyInput = document.getElementById('modalApiKeyInput');
+      if (keyInput && keyInput.value) {
+        if (modalAiConfig.provider === 'gemini') {
+          modalAiConfig.geminiApiKey = keyInput.value.trim();
+        } else {
+          modalAiConfig.groqApiKey = keyInput.value.trim();
+        }
+      }
+
       modalAiConfig.provider = prov;
       const btnGroq = document.getElementById('modalBtnGroq');
       const btnGemini = document.getElementById('modalBtnGemini');
       const badge = document.getElementById('modalActiveEngineBadge');
       const keyLabel = document.getElementById('modalApiKeyLabel');
-      const keyInput = document.getElementById('modalApiKeyInput');
 
       if (prov === 'gemini') {
         if (btnGemini) {
@@ -1522,6 +1593,7 @@
       }
 
       populateModalModels(prov);
+      updateApiKeyStatusBadge();
     }
 
     function populateModalModels(prov) {
@@ -1545,6 +1617,9 @@
 
     function onModalModelChange() {
       modalAiConfig.selectedModel = document.getElementById('modalModelSelect').value;
+      try {
+        localStorage.setItem('agent_ai_config', JSON.stringify(modalAiConfig));
+      } catch (e) {}
     }
 
     function openSettingsModal() {
@@ -1556,29 +1631,51 @@
       toggleFallbackTextarea(fbEnabled);
       document.getElementById('cfgFallbackReply').value = localSettings.fallbackReply || '';
 
-      const delayVal = Number(localSettings.defaultDelay) || 3;
+      const delayVal = Number(localSettings.replyDelay) || Number(modalAiConfig.replyDelay) || 7;
       document.getElementById('cfgDefaultDelay').value = delayVal;
       updateSettingsDelayDisplay(delayVal);
 
       document.getElementById('cfgTypingIndicator').checked = localSettings.typingIndicator !== false && localSettings.typingIndicator !== 'false';
       document.getElementById('cfgOnlyPrivate').checked = localSettings.onlyPrivate !== false && localSettings.onlyPrivate !== 'false';
 
-      // Load AI Config from local gateway
-      fetch(LOCAL_API + '/api/ai-config')
+      // 1. Immediately apply cached/default AI config so inputs are NEVER blank
+      modalAiConfig = getLocalAiConfig();
+      switchModalEngine(modalAiConfig.provider || 'groq');
+
+      // 2. Fetch live settings directly from Cloudflare Worker D1
+      fetch(WORKER_API + '/api/agent/settings')
         .then(r => r.json())
         .then(d => {
-          if (d && d.success) {
-            modalAiConfig = {
-              provider: d.provider || 'groq',
-              selectedModel: d.selectedModel || 'openai/gpt-oss-20b',
-              groqApiKey: d.groqApiKey || '',
-              geminiApiKey: d.geminiApiKey || ''
-            };
+          if (d && d.settings) {
+            const s = d.settings;
+            if (s.provider) modalAiConfig.provider = s.provider;
+            if (s.selectedModel) modalAiConfig.selectedModel = s.selectedModel;
+            if (s.groqApiKey) modalAiConfig.groqApiKey = s.groqApiKey;
+            if (s.geminiApiKey) modalAiConfig.geminiApiKey = s.geminiApiKey;
+            if (s.replyDelay) {
+              modalAiConfig.replyDelay = Number(s.replyDelay) || 7;
+              document.getElementById('cfgDefaultDelay').value = modalAiConfig.replyDelay;
+              updateSettingsDelayDisplay(modalAiConfig.replyDelay);
+            }
+            if (s.fallbackEnabled !== undefined) {
+              const fb = s.fallbackEnabled === 'true' || s.fallbackEnabled === true;
+              document.getElementById('cfgFallbackEnabled').checked = fb;
+              toggleFallbackTextarea(fb);
+            }
+            if (s.fallbackReply) document.getElementById('cfgFallbackReply').value = s.fallbackReply;
+            if (s.typingIndicator !== undefined) {
+              document.getElementById('cfgTypingIndicator').checked = s.typingIndicator !== 'false' && s.typingIndicator !== false;
+            }
+            if (s.onlyPrivate !== undefined) {
+              document.getElementById('cfgOnlyPrivate').checked = s.onlyPrivate !== 'false' && s.onlyPrivate !== false;
+            }
+            try {
+              localStorage.setItem('agent_ai_config', JSON.stringify(modalAiConfig));
+              localStorage.setItem('agent_settings', JSON.stringify(s));
+            } catch (e) {}
             switchModalEngine(modalAiConfig.provider);
           }
-        }).catch(() => {
-          switchModalEngine('groq');
-        });
+        }).catch(() => {});
 
       document.getElementById('settingsModal').classList.add('active');
     }
@@ -1612,39 +1709,36 @@
       WORKER_API = document.getElementById('cfgWorkerUrl').value.trim() || WORKER_API;
       LOCAL_API = document.getElementById('cfgLocalUrl').value.trim() || LOCAL_API;
 
+      const keyVal = (document.getElementById('modalApiKeyInput').value || '').trim();
+      if (modalAiConfig.provider === 'gemini') {
+        if (keyVal) modalAiConfig.geminiApiKey = keyVal;
+      } else {
+        if (keyVal) modalAiConfig.groqApiKey = keyVal;
+      }
+      modalAiConfig.selectedModel = document.getElementById('modalModelSelect').value;
+      modalAiConfig.replyDelay = Number(document.getElementById('cfgDefaultDelay').value || '7');
+
       const payload = {
         fallbackEnabled: document.getElementById('cfgFallbackEnabled').checked ? 'true' : 'false',
         fallbackReply: document.getElementById('cfgFallbackReply').value.trim(),
-        defaultDelay: String(document.getElementById('cfgDefaultDelay').value || '3'),
+        replyDelay: String(modalAiConfig.replyDelay),
         typingIndicator: document.getElementById('cfgTypingIndicator').checked ? 'true' : 'false',
-        onlyPrivate: document.getElementById('cfgOnlyPrivate').checked ? 'true' : 'false'
+        onlyPrivate: document.getElementById('cfgOnlyPrivate').checked ? 'true' : 'false',
+        provider: modalAiConfig.provider,
+        selectedModel: modalAiConfig.selectedModel,
+        groqApiKey: modalAiConfig.groqApiKey,
+        geminiApiKey: modalAiConfig.geminiApiKey
       };
 
       localSettings = { ...localSettings, ...payload };
       localStorage.setItem('agent_worker_url', WORKER_API);
       localStorage.setItem('agent_local_url', LOCAL_API);
       localStorage.setItem('agent_settings', JSON.stringify(localSettings));
-
-      // Save AI Config to local gateway
-      const keyVal = (document.getElementById('modalApiKeyInput').value || '').trim();
-      if (modalAiConfig.provider === 'gemini') {
-        modalAiConfig.geminiApiKey = keyVal;
-      } else {
-        modalAiConfig.groqApiKey = keyVal;
-      }
-      modalAiConfig.selectedModel = document.getElementById('modalModelSelect').value;
-      modalAiConfig.replyDelay = Number(document.getElementById('cfgDefaultDelay').value || '3');
-
       try {
-        await fetch(LOCAL_API + '/api/ai-config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(modalAiConfig)
-        });
-      } catch (e) {
-        console.warn('Could not sync AI config to local server:', e);
-      }
+        localStorage.setItem('agent_ai_config', JSON.stringify(modalAiConfig));
+      } catch (e) {}
 
+      // 1. Save directly to Cloudflare D1
       let d1Saved = false;
       try {
         const wRes = await fetch(WORKER_API + '/api/agent/settings', {
@@ -1660,7 +1754,7 @@
         console.error('Error saving settings to Worker D1:', e);
       }
 
-      // Notify local server to reset cache
+      // 2. Notify local server to sync from Cloudflare
       try {
         await fetch(LOCAL_API + '/api/sync-now', { method: 'POST' });
       } catch (e) {}
@@ -1671,7 +1765,7 @@
       }
 
       closeSettingsModal();
-      showToast(d1Saved ? 'সেটিংস Cloudflare D1 ও AI ইঞ্জিনে সংরক্ষিত হয়েছে!' : 'সেটিংস সফলভাবে সংরক্ষিত হয়েছে!');
+      showToast(d1Saved ? 'সেটিংস Cloudflare D1-এ সংরক্ষিত হয়েছে!' : 'সেটিংস সফলভাবে সংরক্ষিত হয়েছে!');
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -1686,13 +1780,20 @@
         try { localSettings = { ...localSettings, ...JSON.parse(savedSettings) }; } catch(e){}
       }
 
-      // Fetch live settings from D1
+      // Fetch live settings from Cloudflare Worker D1
       fetch(WORKER_API + '/api/agent/settings')
         .then(r => r.json())
         .then(d => {
           if (d && d.settings && Object.keys(d.settings).length > 0) {
-            localSettings = { ...localSettings, ...d.settings };
+            const s = d.settings;
+            localSettings = { ...localSettings, ...s };
+            if (s.provider) modalAiConfig.provider = s.provider;
+            if (s.selectedModel) modalAiConfig.selectedModel = s.selectedModel;
+            if (s.groqApiKey) modalAiConfig.groqApiKey = s.groqApiKey;
+            if (s.geminiApiKey) modalAiConfig.geminiApiKey = s.geminiApiKey;
+            if (s.replyDelay) modalAiConfig.replyDelay = Number(s.replyDelay) || 7;
             localStorage.setItem('agent_settings', JSON.stringify(localSettings));
+            localStorage.setItem('agent_ai_config', JSON.stringify(modalAiConfig));
           }
         }).catch(() => {});
 
