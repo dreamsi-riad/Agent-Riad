@@ -739,7 +739,8 @@
       pointer-events: none;
       transition: all 0.2s ease;
     }
-    .modal-overlay.open {
+    .modal-overlay.open,
+    .modal-overlay.active {
       opacity: 1;
       pointer-events: auto;
     }
@@ -827,10 +828,10 @@
     <!-- SECTION NAVIGATION (2 Main Dedicated Sections) -->
     <div class="section-nav-wrapper">
       <div class="section-tabs">
-        <button class="tab-btn active" id="tabInput" onclick="switchSection('input')">
+        <button class="tab-btn" id="tabInput" onclick="switchSection('input')">
           <span>✍️ ১. ডাটা ইনপুট (Title & Description)</span>
         </button>
-        <button class="tab-btn" id="tabManage" onclick="switchSection('manage')">
+        <button class="tab-btn active" id="tabManage" onclick="switchSection('manage')">
           <span>📊 ২. ডাটাবেজ ম্যানেজমেন্ট (agent_data)</span>
           <span id="tabCountBadge" style="background:rgba(0,0,0,0.06); padding:2px 8px; border-radius:12px; font-size:12px;">0</span>
         </button>
@@ -845,7 +846,7 @@
     <!-- =========================================================
          SECTION 1: DATA INPUT (Title & Description Architecture)
          ========================================================= -->
-    <section id="sectionInput" class="section-content active">
+    <section id="sectionInput" class="section-content">
       <div class="panel" style="max-width: 850px; margin: 0 auto;">
         <div class="panel-header">
           <div class="panel-title">
@@ -895,7 +896,7 @@
     <!-- =========================================================
          SECTION 2: DATA MANAGEMENT ZONE (agent_data)
          ========================================================= -->
-    <section id="sectionManage" class="section-content">
+    <section id="sectionManage" class="section-content active">
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">
@@ -952,9 +953,36 @@
 
   <!-- Settings Modal -->
   <div id="settingsModal" class="modal-overlay">
-    <div class="modal-card" style="text-align:left; max-width:540px;">
+    <div class="modal-card" style="text-align:left; max-width:560px; max-height:90vh; overflow-y:auto;">
       <button class="modal-close" onclick="closeSettingsModal()">✕</button>
-      <h3 style="margin-bottom:16px; font-size:18px;">⚙️ ক্লাউড ও গেটওয়ে সেটিংস</h3>
+      <h3 style="margin-bottom:16px; font-size:18px;">⚙️ এজেন্ট ও গেটওয়ে সেটিংস</h3>
+
+      <!-- AI Engine & Model Control Panel -->
+      <div style="background:var(--input-bg); border:1px solid var(--card-border); border-radius:14px; padding:16px; margin-bottom:18px;">
+        <div style="font-size:14px; font-weight:800; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
+          <span style="display:flex; align-items:center; gap:6px;"><span>🧠</span> AI ইঞ্জিন ও মডেল নির্বাচন</span>
+          <span id="modalActiveEngineBadge" style="font-size:11.5px; padding:3px 9px; border-radius:12px; font-weight:700; background:var(--primary-light); color:var(--primary);">GROQ</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+          <button type="button" class="btn" id="modalBtnGroq" style="padding:10px; font-weight:800; border-radius:10px; border:2px solid var(--primary); background:var(--primary-light); color:var(--primary); cursor:pointer;" onclick="switchModalEngine('groq')">
+            ⚡ Groq AI
+          </button>
+          <button type="button" class="btn" id="modalBtnGemini" style="padding:10px; font-weight:800; border-radius:10px; border:2px solid var(--card-border); background:var(--card-bg); color:var(--text-muted); cursor:pointer;" onclick="switchModalEngine('gemini')">
+            ✨ Google Gemini
+          </button>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px;">
+          <label style="font-size:12.5px; font-weight:700;">মডেল নির্বাচন করুন</label>
+          <select id="modalModelSelect" class="form-control" style="font-size:13px;" onchange="onModalModelChange()"></select>
+        </div>
+
+        <div class="form-group" style="margin-bottom:0;">
+          <label id="modalApiKeyLabel" style="font-size:12.5px; font-weight:700;">Groq API Key</label>
+          <input type="password" id="modalApiKeyInput" class="form-control" style="font-size:13px;" placeholder="API Key লিখুন...">
+        </div>
+      </div>
 
       <div class="form-group">
         <label>Cloudflare Worker API URL</label>
@@ -965,7 +993,51 @@
       <div class="form-group">
         <label>Local Gateway Server URL</label>
         <input type="text" id="cfgLocalUrl" class="form-control" value="http://localhost:3001">
-        <div class="input-hint">আপনার পিসিতে চলা লোকাল নোড জেএস গেটওয়ে।</div>
+        <div class="input-hint">আপনার পিসিতে চলা লোকাল নোড জেএস গেটওয়ে (WhatsApp সংযোগের জন্য)।</div>
+      </div>
+
+      <div class="form-group">
+        <label class="switch-label">
+          <span><b>কোনো কি-ওয়ার্ড না মিললে স্বয়ংক্রিয় রিপ্লাই পাঠাবেন?</b></span>
+          <div class="switch">
+            <input type="checkbox" id="cfgFallbackEnabled" onchange="toggleFallbackTextarea(this.checked)">
+            <span class="slider"></span>
+          </div>
+        </label>
+        <div class="input-hint">অন থাকলে নিচে দেওয়া বার্তাটি পাঠানো হবে। অফ থাকলে বট নীরব থাকবে।</div>
+      </div>
+
+      <div class="form-group" id="fallbackTextareaGroup" style="display:none;">
+        <label>ফলব্যাক রিপ্লাই বার্তা <span class="required">*</span></label>
+        <textarea id="cfgFallbackReply" class="form-control" style="min-height:80px;" placeholder="যেমন: দুঃখিত, আপনার প্রশ্নটি বুঝতে পারিনি। বিস্তারিত তথ্যের জন্য আমাদের সাথে সরাসরি যোগাযোগ করুন।"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>ডিফল্ট রিপ্লাই ডিলে (হিউম্যান টাইমিং)</label>
+        <div class="slider-container">
+          <input type="range" id="cfgDefaultDelay" min="1" max="10" step="1" value="3" oninput="updateSettingsDelayDisplay(this.value)">
+          <div class="slider-val" id="cfgDelayValText">3s</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="switch-label">
+          <span>মেসেজ রিপ্লাইয়ের আগে "Typing..." দেখান</span>
+          <div class="switch">
+            <input type="checkbox" id="cfgTypingIndicator" checked>
+            <span class="slider"></span>
+          </div>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label class="switch-label">
+          <span>শুধুমাত্র প্রাইভেট চ্যাটে রিপ্লাই দিন (গ্রুপ ইগনোর করুন)</span>
+          <div class="switch">
+            <input type="checkbox" id="cfgOnlyPrivate" checked>
+            <span class="slider"></span>
+          </div>
+        </label>
       </div>
 
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
@@ -983,9 +1055,58 @@
     let WORKER_API = localStorage.getItem('agent_worker_url') || 'https://visiondatabox-worker.dreamsicreation.workers.dev';
     let LOCAL_API = localStorage.getItem('agent_local_url') || 'http://localhost:3001';
 
+    // 31 Pre-filled Course Records for instant offline & GitHub Pages preview
+    const DEFAULT_COURSES = [
+      { id: 1, title: 'Monthly Batch (মাসিক ব্যাচ)', description: 'আমাদের বিশেষ মাসিক ব্যাচ চালু আছে। মাসিক ব্যাচের ফি প্রতি মাসে মাত্র ৯৫০ টাকা (৳৯৫০ প্রতি মাসে)। এককালীন ফুল কোর্স ফি দিতে না চাইলে যে কেউ এই মাসিক ব্যাচে ভর্তি হয়ে নিয়মিত ক্লাস করতে পারবে।', is_active: 1 },
+      { id: 2, title: 'Functional English Course', description: 'Functional English কোর্সের রেগুলার ফি ২,৫০০ টাকা। বর্তমানে স্পেশাল মেগা অফারে কোর্স ফি মাত্র ১,৪৯৯ টাকা। BBA VISION-এর সকল কোর্সে ভর্তিকৃত শিক্ষার্থীদের জন্য এই কোর্সটি সম্পূর্ণ ফ্রি (100% Free)। এতে কোনো শেষ ছাড় বা কনসেশন প্রযোজ্য নয়।', is_active: 1 },
+      { id: 3, title: 'Official Payment Info (অফিসিয়াল পেমেন্ট নম্বর)', description: 'অফিসিয়াল পেমেন্ট নম্বর: 01764859503। বিকাশ, নগদ বা রকেট যে কোনো মাধ্যম থেকেই অবশ্যই Make Payment করতে হবে (Send Money গ্রহণযোগ্য নয়)।', is_active: 1 },
+      { id: 4, title: 'National University - BBA (Honours) ১ম বর্ষ (New 1st Year - সেশন ২৫-২৬) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৬,০০০ | শেষ কনসেশন প্রাইস: ৳৬,০০০। ক্লাসের সুবিধা: সকল ম্যাথ ও থিওরি সাবজেক্ট লাইভ + রেকর্ডেড ক্লাস + বিগত সব রেকর্ডেড ক্লাস সুবিধা।', is_active: 1 },
+      { id: 5, title: 'Dhaka Central University - BBA (Honours) ১ম বর্ষ (New 1st Year - সেশন ২৫-২৬) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৬,০০০ | শেষ কনসেশন প্রাইস: ৳৬,০০০। ক্লাসের সুবিধা: সকল সাবজেক্ট লাইভ + রেকর্ডেড ক্লাস + পূর্বের সব রেকর্ডেড ক্লাসের সুযোগ।', is_active: 1 },
+      { id: 6, title: 'Dhaka Central University - BBA (Honours) ১ম বর্ষ (Old 1st Year - সেশন ২৪-২৫) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳২,৫০০ | শেষ কনসেশন প্রাইস: ৳২,০০০। ক্লাসের সুবিধা: সকল বিষয়ের লাইভ ও রেকর্ডেড ক্লাস সুবিধা।', is_active: 1 },
+      { id: 7, title: 'National University - BBS (ডিগ্রি পাস / বিবিএস) ১ম বর্ষ (1st Year - সেশন ২৫-২৬) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৬,০০০ | শেষ কনসেশন প্রাইস: ৳৫,০০০ (প্রতি বিষয়ে ২৫০০ টাকা করে, মোট শেষ প্রাইস ৫০০০ টাকা)। ক্লাসের সুবিধা: সকল ম্যাথ সম্পর্কিত বিষয়ের লাইভ ও রেকর্ডেড ক্লাস।', is_active: 1 },
+      { id: 8, title: 'National University - BBA (Honours) ২য় বর্ষ (New 2nd Year - সেশন ২৪-২৫) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৬,৫০০ | শেষ কনসেশন প্রাইস: ৳৬,৫০০। ক্লাসের সুবিধা: হিসাববিজ্ঞান বিভাগের সম্পূর্ণ সিলেবাস কভারেজ ও লাইভ ক্লাস।', is_active: 1 },
+      { id: 9, title: 'National University - BBA (Honours) ২য় বর্ষ (New 2nd Year - সেশন ২৪-২৫) (Management, Marketing & Finance (ব্যবস্থাপনা, মার্কেটিং ও ফিন্যান্স))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৬,০০০ | শেষ কনসেশন প্রাইস: ৳৬,০০০। ক্লাসের সুবিধা: ব্যবস্থাপনা, মার্কেটিং ও ফিন্যান্সের সম্পূর্ণ লাইভ ও রেকর্ডেড ক্লাস।', is_active: 1 },
+      { id: 10, title: 'Dhaka Central University - BBA (Honours) ২য় বর্ষ (Old 2nd Year - সেশন ২৩-২৪) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,৫০০। ক্লাসের সুবিধা: ওল্ড ২য় বর্ষের সম্পূর্ণ কোর্স প্যাকেজ।', is_active: 1 },
+      { id: 11, title: 'Dhaka Central University - BBA (Honours) ২য় বর্ষ (Old 2nd Year - সেশন ২৩-২৪) (Management, Marketing & Finance (ব্যবস্থাপনা, মার্কেটিং ও ফিন্যান্স))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৪,৫০০ | শেষ কনসেশন প্রাইস: ৳৪,০০০। ক্লাসের সুবিধা: ওল্ড ২য় বর্ষের সম্পূর্ণ কোর্স প্যাকেজ।', is_active: 1 },
+      { id: 12, title: 'National University - BBS (ডিগ্রি পাস / বিবিএস) ২য় বর্ষ (2nd Year - সেশন ২৪-২৫) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,৫০০। ক্লাসের সুবিধা: বিবিএস ২য় বর্ষের সকল বিষয়ের সম্পূর্ণ প্রস্তুতি ও গ্রুপ সাপোর্ট।', is_active: 1 },
+      { id: 13, title: 'National University - BBA (Honours) ৩য় বর্ষ (New 3rd Year - সেশন ২৩-২৪) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৬,৫০০ | শেষ কনসেশন প্রাইস: ৳৬,৫০০। ক্লাসের সুবিধা: নতুন ৩য় বর্ষের হিসাববিজ্ঞান বিভাগের ফুল কোর্স।', is_active: 1 },
+      { id: 14, title: 'National University - BBA (Honours) ৩য় বর্ষ (New 3rd Year - সেশন ২৩-২৪) (Management, Marketing & Finance (ব্যবস্থাপনা, মার্কেটিং ও ফিন্যান্স))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৬,০০০ | শেষ কনসেশন প্রাইস: ৳৬,০০০। ক্লাসের সুবিধা: নতুন ৩য় বর্ষের ব্যবস্থাপনা, মার্কেটিং ও ফিন্যান্স বিভাগের ফুল কোর্স।', is_active: 1 },
+      { id: 15, title: 'National University - BBA (Honours) ৩য় বর্ষ (Old 3rd Year - সেশন ২১-২২) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৩,৫০০ | শেষ কনসেশন প্রাইস: ৳৩,০০০। ক্লাসের সুবিধা: ওল্ড ৩য় বর্ষের হিসাববিজ্ঞান ফুল কোর্স।', is_active: 1 },
+      { id: 16, title: 'National University - BBA (Honours) ৩য় বর্ষ (Old 3rd Year - সেশন ২১-২২) (Management, Marketing & Finance (ব্যবস্থাপনা, মার্কেটিং ও ফিন্যান্স))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৩,৫০০ | শেষ কনসেশন প্রাইস: ৳৩,০০০। ক্লাসের সুবিধা: ওল্ড ৩য় বর্ষের ব্যবস্থাপনা, মার্কেটিং ও ফিন্যান্স ফুল কোর্স।', is_active: 1 },
+      { id: 17, title: 'Dhaka Central University - BBA (Honours) ৩য় বর্ষ (Old 3rd Year - সেশন ২১-২২) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,৫০০। ক্লাসের সুবিধা: ঢাকা সেন্ট্রাল ৩য় বর্ষ অ্যাকাউন্টিং ফুল কোর্স।', is_active: 1 },
+      { id: 18, title: 'Dhaka Central University - BBA (Honours) ৩য় বর্ষ (Old 3rd Year - সেশন ২১-২২) (Management, Marketing & Finance (ব্যবস্থাপনা, মার্কেটিং ও ফিন্যান্স))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,০০০। ক্লাসের সুবিধা: ঢাকা সেন্ট্রাল ৩য় বর্ষ অন্যান্য বিভাগ ফুল কোর্স।', is_active: 1 },
+      { id: 19, title: 'National University - BBS (ডিগ্রি পাস / বিবিএস) ৩য় বর্ষ (3rd Year - সেশন ২১-২২) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,৫০০। ক্লাসের সুবিধা: বিবিএস ৩য় বর্ষের সকল বিষয়ের সম্পূর্ণ প্রস্তুতি।', is_active: 1 },
+      { id: 20, title: 'National University - BBA (Honours) ৪র্থ বর্ষ (4th Year - সেশন ২০-২১) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,৫০০। ক্লাসের সুবিধা: ৪র্থ বর্ষ ফাইনাল ইয়ার হিসাববিজ্ঞান সম্পূর্ণ কোর্স।', is_active: 1 },
+      { id: 21, title: 'National University - BBA (Honours) ৪র্থ বর্ষ (4th Year - সেশন ২০-২১) (Management Department (ব্যবস্থাপনা))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৪,০০০ | শেষ কনসেশন প্রাইস: ৳৩,৫০০। ক্লাসের সুবিধা: ৪র্থ বর্ষ ফাইনাল ইয়ার ব্যবস্থাপনা সম্পূর্ণ কোর্স।', is_active: 1 },
+      { id: 22, title: 'National University - BBA (Honours) ৪র্থ বর্ষ (4th Year - সেশন ২০-২১) (Finance Department (ফিন্যান্স))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৪,৫০০ | শেষ কনসেশন প্রাইস: ৳৪,০০০। ক্লাসের সুবিধা: ৪র্থ বর্ষ ফাইনাল ইয়ার ফিন্যান্স সম্পূর্ণ কোর্স।', is_active: 1 },
+      { id: 23, title: 'Dhaka Central University - BBA (Honours) ৪র্থ বর্ষ (4th Year - সেশন ২০-২১) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,৫০০। ক্লাসের সুবিধা: ঢাকা সেন্ট্রাল ৪র্থ বর্ষ হিসাববিজ্ঞান ফুল কোর্স।', is_active: 1 },
+      { id: 24, title: 'Dhaka Central University - BBA (Honours) ৪র্থ বর্ষ (4th Year - সেশন ২০-২১) (Management Department (ব্যবস্থাপনা))', description: 'রেগুলার ফি: ৳৫,০০০ | বর্তমান অফার ফি: ৳৪,০০০ | শেষ কনসেশন প্রাইস: ৳৩,০০০। ক্লাসের সুবিধা: ঢাকা সেন্ট্রাল ৪র্থ বর্ষ ব্যবস্থাপনা ফুল কোর্স।', is_active: 1 },
+      { id: 25, title: 'Dhaka Central University - BBA (Honours) ৪র্থ বর্ষ (4th Year - সেশন ২০-২১) (Finance Department (ফিন্যান্স))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,০০০। ক্লাসের সুবিধা: ঢাকা সেন্ট্রাল ৪র্থ বর্ষ ফিন্যান্স ফুল কোর্স।', is_active: 1 },
+      { id: 26, title: 'National University - MBA MBA (সেশন ১৯-২০) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৫,৫০০ | শেষ কনসেশন প্রাইস: ৳৫,০০০। ক্লাসের সুবিধা: জাতীয় বিশ্ববিদ্যালয় এমবিএ হিসাববিজ্ঞান বিশেষ অফার কোর্স।', is_active: 1 },
+      { id: 27, title: 'Dhaka Central University - MBA MBA (সেশন ১৯-২০) (Accounting Department (হিসাববিজ্ঞান))', description: 'রেগুলার ফি: ৳৭,০০০ | বর্তমান অফার ফি: ৳৫,৫০০ | শেষ কনসেশন প্রাইস: ৳৫,০০০। ক্লাসের সুবিধা: ঢাকা সেন্ট্রাল এমবিএ হিসাববিজ্ঞান রানিং অফার কোর্স।', is_active: 1 },
+      { id: 28, title: 'All Institutes - BBA Professional Any Year (যেকোনো বর্ষ - অল সেশন) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳৬,৫০০ | বর্তমান অফার ফি: ৳৫,০০০ | শেষ কনসেশন প্রাইস: ৳৪,৫০০। ক্লাসের সুবিধা: বিবিএ প্রফেশনাল প্রোগ্রামের স্পেশাল ফুল কোর্স।', is_active: 1 },
+      { id: 29, title: 'National University - BBA Improvement (ইমপ্রুভমেন্ট) All Year (সকল বর্ষ ও সেশন) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳২,৫০০ | বর্তমান অফার ফি: ৳২,০০০ | শেষ কনসেশন প্রাইস: ৳১,৫০০। ক্লাসের সুবিধা: 🛡️ Extra Care & Priority Support, 📺 সব চ্যাপ্টারের Complete Recorded Classes, 🗓️ সাপ্তাহিক Improvement Live Session, 👥 Offline Face-to-Face Support, 🔄 Refund Commitment।', is_active: 1 },
+      { id: 30, title: 'Dhaka Central University - BBA Improvement (ইমপ্রুভমেন্ট) All Year (সকল বর্ষ ও সেশন) (All Departments (সকল বিভাগ))', description: 'রেগুলার ফি: ৳২,৫০০ | বর্তমান অফার ফি: ৳২,০০০ | শেষ কনসেশন প্রাইস: ৳১,৫০০। ক্লাসের সুবিধা: 🛡️ Extra Care & Priority Support, 📺 সব চ্যাপ্টারের Complete Recorded Classes, 🗓️ সাপ্তাহিক Improvement Live Session, 👥 Offline Face-to-Face Support, 🔄 Refund Commitment।', is_active: 1 },
+      { id: 31, title: 'Special Facility - BBA Improvement Comeback Facilities (ইমপ্রুভমেন্ট ৫টি বিশেষ সুবিধা)', description: 'ইমপ্রুভমেন্ট শিক্ষার্থীদের ৫টি বিশেষ সুবিধা: ১. 🛡️ Extra Care & Priority Support: প্রতিটি টপিক বেসিক থেকে বুঝিয়ে দেওয়া হয়। ২. 📺 সব চ্যাপ্টারের Complete Recorded Classes: তাৎক্ষণিক ফুল সিলেবাস রিভিশন। ৩. 🗓️ সাপ্তাহিক Improvement Live Session: সরাসরি শিক্ষকদের সাথে প্রশ্ন-উত্তর পর্ব। ৪. 👥 Offline Face-to-Face Support: সরাসরি অফিসে এসে শিক্ষক ও টিএ-দের সাথে দেখা করে সমাধান। ৫. 🔄 Refund Commitment: নির্দিষ্ট মানদণ্ডে উত্তীর্ণ হয়েও রেজাল্ট ইমপ্রুভ না হলে কোর্স ফি রিফান্ড।', is_active: 1 }
+    ];
+
     let allData = [];
+    const savedCache = localStorage.getItem('agent_cached_data');
+    if (savedCache) {
+      try { allData = JSON.parse(savedCache); } catch(e) { allData = DEFAULT_COURSES; }
+    } else {
+      allData = DEFAULT_COURSES;
+    }
+
     let currentFilter = 'all';
     let isGatewayConnected = false;
+    let localSettings = {
+      defaultDelay: 3,
+      typingIndicator: true,
+      onlyPrivate: true,
+      fallbackEnabled: false,
+      fallbackReply: ''
+    };
 
     // Notification toast
     function showToast(msg, type = 'success') {
@@ -1033,6 +1154,13 @@
       const badge = document.getElementById('statusBadge');
       const text = document.getElementById('statusText');
 
+      // Check if on HTTPS (like GitHub Pages) trying to reach insecure HTTP localhost
+      if (window.location.protocol === 'https:' && LOCAL_API.startsWith('http://localhost')) {
+        badge.className = 'status-badge disconnected';
+        text.innerText = 'Gateway: লোকাল সার্ভার';
+        return;
+      }
+
       try {
         const res = await fetch(`${LOCAL_API}/status`, { signal: AbortSignal.timeout(2500) });
         if (res.ok) {
@@ -1065,7 +1193,7 @@
 
       // 1. Fetch from Cloudflare Worker D1 /api/agent/data
       try {
-        const res = await fetch(`${WORKER_API}/api/agent/data`, { signal: AbortSignal.timeout(4000) });
+        const res = await fetch(`${WORKER_API}/api/agent/data`, { signal: AbortSignal.timeout(4500) });
         if (res.ok) {
           const data = await res.json();
           const list = data.data || data.rules;
@@ -1081,7 +1209,7 @@
         }
       } catch (e) {}
 
-      // 2. Fallback to /api/agent/rules if worker not yet redeployed
+      // 2. Fallback to /api/agent/rules
       if (!loaded) {
         try {
           const res = await fetch(`${WORKER_API}/api/agent/rules`, { signal: AbortSignal.timeout(3500) });
@@ -1101,15 +1229,15 @@
         } catch (e) {}
       }
 
-      // 3. Fallback to local cache
-      if (!loaded && allData.length === 0) {
-        const local = localStorage.getItem('agent_cached_data');
-        if (local) {
-          try { allData = JSON.parse(local); } catch(e) {}
+      if (loaded) {
+        localStorage.setItem('agent_cached_data', JSON.stringify(allData));
+        showToast('Cloudflare D1 থেকে লাইভ ডাটা লোড হয়েছে!');
+      } else {
+        if (!allData || allData.length === 0) {
+          allData = DEFAULT_COURSES;
         }
       }
 
-      localStorage.setItem('agent_cached_data', JSON.stringify(allData));
       updateMetrics();
       renderDataList();
     }
@@ -1315,11 +1443,146 @@
     function closeQrModal() {
       document.getElementById('qrModal').classList.remove('active');
     }
+
+    function toggleFallbackTextarea(show) {
+      const grp = document.getElementById('fallbackTextareaGroup');
+      if (grp) grp.style.display = show ? 'block' : 'none';
+    }
+
+    function updateSettingsDelayDisplay(val) {
+      const el = document.getElementById('cfgDelayValText');
+      if (el) el.innerText = val + 's';
+    }
+
+    let modalAiConfig = {
+      provider: 'groq',
+      selectedModel: 'openai/gpt-oss-20b',
+      groqApiKey: '',
+      geminiApiKey: ''
+    };
+    const MODAL_SUPPORTED_MODELS = {
+      groq: [
+        { id: 'openai/gpt-oss-20b', name: 'OpenAI GPT-OSS 20B (আল্ট্রা ফাস্ট - ডিফল্ট)' },
+        { id: 'openai/gpt-oss-120b', name: 'OpenAI GPT-OSS 120B (উন্নত রিজনিং)' },
+        { id: 'qwen/qwen3.8-27b', name: 'Qwen 3.8 27B (বাংলা বুদ্ধিমত্তা)' }
+      ],
+      gemini: [
+        { id: 'gemini-3.5-flash-lite', name: 'Gemini 3.5 Flash-Lite (আল্ট্রা ফাস্ট - ডিফল্ট)' },
+        { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash (ব্যালেন্সড ও বুদ্ধিমান)' },
+        { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview' },
+        { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro Preview' },
+        { id: 'gemini-flash-latest', name: 'Gemini Flash Latest' }
+      ]
+    };
+
+    function switchModalEngine(prov) {
+      modalAiConfig.provider = prov;
+      const btnGroq = document.getElementById('modalBtnGroq');
+      const btnGemini = document.getElementById('modalBtnGemini');
+      const badge = document.getElementById('modalActiveEngineBadge');
+      const keyLabel = document.getElementById('modalApiKeyLabel');
+      const keyInput = document.getElementById('modalApiKeyInput');
+
+      if (prov === 'gemini') {
+        if (btnGemini) {
+          btnGemini.style.borderColor = 'var(--indigo)';
+          btnGemini.style.background = 'var(--indigo-light)';
+          btnGemini.style.color = 'var(--indigo)';
+        }
+        if (btnGroq) {
+          btnGroq.style.borderColor = 'var(--card-border)';
+          btnGroq.style.background = 'var(--card-bg)';
+          btnGroq.style.color = 'var(--text-muted)';
+        }
+        if (badge) {
+          badge.innerText = 'GEMINI';
+          badge.style.background = 'var(--indigo-light)';
+          badge.style.color = 'var(--indigo)';
+        }
+        if (keyLabel) keyLabel.innerText = 'Google Gemini API Key';
+        if (keyInput) keyInput.value = modalAiConfig.geminiApiKey || '';
+      } else {
+        if (btnGroq) {
+          btnGroq.style.borderColor = 'var(--primary)';
+          btnGroq.style.background = 'var(--primary-light)';
+          btnGroq.style.color = 'var(--primary)';
+        }
+        if (btnGemini) {
+          btnGemini.style.borderColor = 'var(--card-border)';
+          btnGemini.style.background = 'var(--card-bg)';
+          btnGemini.style.color = 'var(--text-muted)';
+        }
+        if (badge) {
+          badge.innerText = 'GROQ';
+          badge.style.background = 'var(--primary-light)';
+          badge.style.color = 'var(--primary)';
+        }
+        if (keyLabel) keyLabel.innerText = 'Groq API Key';
+        if (keyInput) keyInput.value = modalAiConfig.groqApiKey || '';
+      }
+
+      populateModalModels(prov);
+    }
+
+    function populateModalModels(prov) {
+      const select = document.getElementById('modalModelSelect');
+      if (!select) return;
+      const list = MODAL_SUPPORTED_MODELS[prov] || [];
+      select.innerHTML = '';
+      list.forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.id;
+        opt.innerText = m.name;
+        select.appendChild(opt);
+      });
+      if (modalAiConfig.selectedModel && list.some(m => m.id === modalAiConfig.selectedModel)) {
+        select.value = modalAiConfig.selectedModel;
+      } else if (list.length > 0) {
+        select.value = list[0].id;
+        modalAiConfig.selectedModel = list[0].id;
+      }
+    }
+
+    function onModalModelChange() {
+      modalAiConfig.selectedModel = document.getElementById('modalModelSelect').value;
+    }
+
     function openSettingsModal() {
       document.getElementById('cfgWorkerUrl').value = WORKER_API;
       document.getElementById('cfgLocalUrl').value = LOCAL_API;
+
+      const fbEnabled = localSettings.fallbackEnabled === true || localSettings.fallbackEnabled === 'true' || Boolean(localSettings.fallbackReply);
+      document.getElementById('cfgFallbackEnabled').checked = fbEnabled;
+      toggleFallbackTextarea(fbEnabled);
+      document.getElementById('cfgFallbackReply').value = localSettings.fallbackReply || '';
+
+      const delayVal = Number(localSettings.defaultDelay) || 3;
+      document.getElementById('cfgDefaultDelay').value = delayVal;
+      updateSettingsDelayDisplay(delayVal);
+
+      document.getElementById('cfgTypingIndicator').checked = localSettings.typingIndicator !== false && localSettings.typingIndicator !== 'false';
+      document.getElementById('cfgOnlyPrivate').checked = localSettings.onlyPrivate !== false && localSettings.onlyPrivate !== 'false';
+
+      // Load AI Config from local gateway
+      fetch(LOCAL_API + '/api/ai-config')
+        .then(r => r.json())
+        .then(d => {
+          if (d && d.success) {
+            modalAiConfig = {
+              provider: d.provider || 'groq',
+              selectedModel: d.selectedModel || 'openai/gpt-oss-20b',
+              groqApiKey: d.groqApiKey || '',
+              geminiApiKey: d.geminiApiKey || ''
+            };
+            switchModalEngine(modalAiConfig.provider);
+          }
+        }).catch(() => {
+          switchModalEngine('groq');
+        });
+
       document.getElementById('settingsModal').classList.add('active');
     }
+
     function closeSettingsModal() {
       document.getElementById('settingsModal').classList.remove('active');
     }
@@ -1339,14 +1602,76 @@
       } catch (e) {}
     }
 
-    function saveSettings() {
+    async function saveSettings() {
+      const saveBtn = document.querySelector('#settingsModal .btn-primary');
+      if (saveBtn) {
+        saveBtn.innerText = 'সংরক্ষণ হচ্ছে...';
+        saveBtn.disabled = true;
+      }
+
       WORKER_API = document.getElementById('cfgWorkerUrl').value.trim() || WORKER_API;
       LOCAL_API = document.getElementById('cfgLocalUrl').value.trim() || LOCAL_API;
+
+      const payload = {
+        fallbackEnabled: document.getElementById('cfgFallbackEnabled').checked ? 'true' : 'false',
+        fallbackReply: document.getElementById('cfgFallbackReply').value.trim(),
+        defaultDelay: String(document.getElementById('cfgDefaultDelay').value || '3'),
+        typingIndicator: document.getElementById('cfgTypingIndicator').checked ? 'true' : 'false',
+        onlyPrivate: document.getElementById('cfgOnlyPrivate').checked ? 'true' : 'false'
+      };
+
+      localSettings = { ...localSettings, ...payload };
       localStorage.setItem('agent_worker_url', WORKER_API);
       localStorage.setItem('agent_local_url', LOCAL_API);
+      localStorage.setItem('agent_settings', JSON.stringify(localSettings));
+
+      // Save AI Config to local gateway
+      const keyVal = (document.getElementById('modalApiKeyInput').value || '').trim();
+      if (modalAiConfig.provider === 'gemini') {
+        modalAiConfig.geminiApiKey = keyVal;
+      } else {
+        modalAiConfig.groqApiKey = keyVal;
+      }
+      modalAiConfig.selectedModel = document.getElementById('modalModelSelect').value;
+      modalAiConfig.replyDelay = Number(document.getElementById('cfgDefaultDelay').value || '3');
+
+      try {
+        await fetch(LOCAL_API + '/api/ai-config', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(modalAiConfig)
+        });
+      } catch (e) {
+        console.warn('Could not sync AI config to local server:', e);
+      }
+
+      let d1Saved = false;
+      try {
+        const wRes = await fetch(WORKER_API + '/api/agent/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (wRes.ok) {
+          const wData = await wRes.json();
+          if (wData.success) d1Saved = true;
+        }
+      } catch (e) {
+        console.error('Error saving settings to Worker D1:', e);
+      }
+
+      // Notify local server to reset cache
+      try {
+        await fetch(LOCAL_API + '/api/sync-now', { method: 'POST' });
+      } catch (e) {}
+
+      if (saveBtn) {
+        saveBtn.innerText = 'সেভ সেটিংস';
+        saveBtn.disabled = false;
+      }
+
       closeSettingsModal();
-      showToast('সেটিংস সংরক্ষিত হয়েছে!');
-      fetchData();
+      showToast(d1Saved ? 'সেটিংস Cloudflare D1 ও AI ইঞ্জিনে সংরক্ষিত হয়েছে!' : 'সেটিংস সফলভাবে সংরক্ষিত হয়েছে!');
     }
 
     window.addEventListener('DOMContentLoaded', () => {
@@ -1356,6 +1681,23 @@
         document.getElementById('themeBtn').innerHTML = '<span>🌙 ডার্ক মোড</span>';
       }
 
+      const savedSettings = localStorage.getItem('agent_settings');
+      if (savedSettings) {
+        try { localSettings = { ...localSettings, ...JSON.parse(savedSettings) }; } catch(e){}
+      }
+
+      // Fetch live settings from D1
+      fetch(WORKER_API + '/api/agent/settings')
+        .then(r => r.json())
+        .then(d => {
+          if (d && d.settings && Object.keys(d.settings).length > 0) {
+            localSettings = { ...localSettings, ...d.settings };
+            localStorage.setItem('agent_settings', JSON.stringify(localSettings));
+          }
+        }).catch(() => {});
+
+      updateMetrics();
+      renderDataList();
       fetchData();
       checkGatewayStatus();
       setInterval(checkGatewayStatus, 5000);
