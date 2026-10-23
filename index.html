@@ -1020,6 +1020,12 @@
       </div>
 
       <div class="form-group">
+        <label>এজেন্ট ফিডব্যাক / অ্যালার্ট WhatsApp গ্রুপ</label>
+        <input type="text" id="cfgFeedbackGroup" class="form-control" placeholder="যেমন: Agent Feedback Group বা Admission Alerts">
+        <div class="input-hint">ডাটাবেজে <code>Agent Feedback on WhatsApp Group</code> ট্যাগযুক্ত বিষয়ে অথবা পেমেন্ট/স্ক্রিনশট আসলে সরাসরি এই WhatsApp গ্রুপে অ্যালার্ট যাবে।</div>
+      </div>
+
+      <div class="form-group">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
           <label style="margin-bottom:0; font-weight:600;">টাইপিং সময় নিয়ন্ত্রণ (স্মার্ট ডায়নামিক হিউম্যান টাইপিং)</label>
           <span style="font-size:0.75rem; background:rgba(16,185,129,0.12); color:#10b981; padding:2px 8px; border-radius:12px; font-weight:600;">🧠 ২s হতে ১৫s স্বয়ংক্রিয়</span>
@@ -1128,7 +1134,8 @@
       typingIndicator: true,
       onlyPrivate: true,
       fallbackEnabled: false,
-      fallbackReply: ''
+      fallbackReply: '',
+      feedbackGroupName: ''
     };
 
     // Notification toast
@@ -1710,6 +1717,7 @@
       document.getElementById('cfgFallbackEnabled').checked = fbEnabled;
       toggleFallbackTextarea(fbEnabled);
       document.getElementById('cfgFallbackReply').value = localSettings.fallbackReply || '';
+      document.getElementById('cfgFeedbackGroup').value = localSettings.feedbackGroupName || '';
 
       const delayVal = Number(localSettings.replyDelay) || Number(modalAiConfig.replyDelay) || 7;
       document.getElementById('cfgDefaultDelay').value = delayVal;
@@ -1743,6 +1751,7 @@
               toggleFallbackTextarea(fb);
             }
             if (s.fallbackReply) document.getElementById('cfgFallbackReply').value = s.fallbackReply;
+            if (s.feedbackGroupName !== undefined) document.getElementById('cfgFeedbackGroup').value = s.feedbackGroupName;
             if (s.typingIndicator !== undefined) {
               document.getElementById('cfgTypingIndicator').checked = s.typingIndicator !== 'false' && s.typingIndicator !== false;
             }
@@ -1801,6 +1810,7 @@
       const payload = {
         fallbackEnabled: document.getElementById('cfgFallbackEnabled').checked ? 'true' : 'false',
         fallbackReply: document.getElementById('cfgFallbackReply').value.trim(),
+        feedbackGroupName: document.getElementById('cfgFeedbackGroup').value.trim(),
         replyDelay: String(modalAiConfig.replyDelay),
         typingIndicator: document.getElementById('cfgTypingIndicator').checked ? 'true' : 'false',
         onlyPrivate: document.getElementById('cfgOnlyPrivate').checked ? 'true' : 'false',
