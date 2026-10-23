@@ -1020,11 +1020,27 @@
       </div>
 
       <div class="form-group">
-        <label>ডিফল্ট রিপ্লাই ডিলে (হিউম্যান টাইমিং)</label>
-        <div class="slider-container">
-          <input type="range" id="cfgDefaultDelay" min="1" max="10" step="1" value="3" oninput="updateSettingsDelayDisplay(this.value)">
-          <div class="slider-val" id="cfgDelayValText">3s</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label style="margin-bottom:0; font-weight:600;">টাইপিং সময় নিয়ন্ত্রণ (স্মার্ট ডায়নামিক হিউম্যান টাইপিং)</label>
+          <span style="font-size:0.75rem; background:rgba(16,185,129,0.12); color:#10b981; padding:2px 8px; border-radius:12px; font-weight:600;">🧠 ২s হতে ১৫s স্বয়ংক্রিয়</span>
         </div>
+        <div style="background:var(--bg-card); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; font-size:0.82rem; line-height:1.5; color:var(--text-muted); margin-bottom:8px;">
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#10b981;"></span>
+            <span><b>খুব ছোট বার্তা:</b> ~২ হতে ৩ সেকেন্ড (যেমন: "জি ভাইয়া", "হ্যাঁ আছে")</span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#3b82f6;"></span>
+            <span><b>মাঝারি বার্তা:</b> ~৫ হতে ৮ সেকেন্ড (যেমন: কোর্স ফি ও ক্লাসের তথ্য)</span>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#f59e0b;"></span>
+            <span><b>বড় ও বিস্তারিত বার্তা:</b> ~১০ হতে সর্বোচ্চ ১৫ সেকেন্ড</span>
+          </div>
+        </div>
+        <input type="hidden" id="cfgDefaultDelay" value="2">
+        <div id="cfgDelayValText" style="display:none;">2s</div>
+        <div class="input-hint">স্বাভাবিক মানুষের মতো মেসেজের দৈর্ঘ্য অনুযায়ী স্বয়ংক্রিয়ভাবে টাইপিং সময় (সর্বনিম্ন ২s, সর্বোচ্চ ১৫s) নির্ধারিত হয়।</div>
       </div>
 
       <div class="form-group">
