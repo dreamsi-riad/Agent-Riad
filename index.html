@@ -976,6 +976,7 @@
         <div class="form-group" style="margin-bottom:12px;">
           <label style="font-size:12.5px; font-weight:700;">মডেল নির্বাচন করুন</label>
           <select id="modalModelSelect" class="form-control" style="font-size:13px;" onchange="onModalModelChange()"></select>
+          <div id="modalModelInsight" style="margin-top:7px; font-size:11.5px; line-height:1.45; padding:8px 10px; border-radius:8px; background:rgba(99,102,241,0.08); border-left:3px solid #6366f1; color:var(--text-main);"></div>
         </div>
 
         <div class="form-group" style="margin-bottom:0;">
@@ -1485,16 +1486,63 @@
     let modalAiConfig = getLocalAiConfig();
     const MODAL_SUPPORTED_MODELS = {
       groq: [
-        { id: 'openai/gpt-oss-20b', name: 'OpenAI GPT-OSS 20B (আল্ট্রা ফাস্ট - ডিফল্ট)' },
-        { id: 'openai/gpt-oss-120b', name: 'OpenAI GPT-OSS 120B (উন্নত রিজনিং)' },
-        { id: 'qwen/qwen3.8-27b', name: 'Qwen 3.8 27B (বাংলা বুদ্ধিমত্তা)' }
+        {
+          id: 'openai/gpt-oss-20b',
+          name: 'GPT-OSS 20B (RPD: ১০০০ | TPM: ৮K) [বুদ্ধিমত্তা: ★★★★☆ আল্ট্রা ফাস্ট — ডিফল্ট]',
+          insight: '⚡ <b>বুদ্ধিমত্তা:</b> ★★★★☆ (আল্ট্রা ফাস্ট)। স্পষ্ট নিয়ম ও সরাসরি কোর্স তথ্যে পারফেক্ট।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> সংক্ষিপ্ত, মার্জিত ও টু-দ্য-পয়েন্ট।'
+        },
+        {
+          id: 'openai/gpt-oss-120b',
+          name: 'GPT-OSS 120B (RPD: ১০০০ | TPD: ২০০K) [বুদ্ধিমত্তা: ★★★★★ গভীর রিজনিং ও পরিস্থিতি হ্যান্ডলিং]',
+          insight: '🧠 <b>বুদ্ধিমত্তা:</b> ★★★★★ (উন্নত রিজনিং)। জটিল প্রশ্ন ও দরদাম সামলানোর উচ্চ ক্ষমতা।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> অভিজ্ঞ একাডেমিক কাউন্সিলরের মতো সুবিবেচক।'
+        },
+        {
+          id: 'qwen/qwen3.8-27b',
+          name: 'Qwen 3.8 27B (RPD: ১০০০ | TPM: ৮K) [বুদ্ধিমত্তা: ★★★★★ বিশুদ্ধ বাংলা ও দারুণ হিউম্যানয়েড]',
+          insight: '🇧🇩 <b>বুদ্ধিমত্তা:</b> ★★★★★ (বাংলা স্পেশাল)। খাঁটি বাংলা বাচনভঙ্গি ও স্থানীয় মনোভাব বোঝার অসাধারণ দক্ষতা।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> অত্যন্ত আন্তরিক, মিষ্টি ও প্রাণবন্ত।'
+        }
       ],
       gemini: [
-        { id: 'gemini-3.5-flash-lite', name: 'Gemini 3.5 Flash-Lite (আল্ট্রা ফাস্ট - ডিফল্ট)' },
-        { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash (ব্যালেন্সড ও বুদ্ধিমান)' },
-        { id: 'gemini-3-flash-preview', name: 'Gemini 3 Flash Preview' },
-        { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro Preview' },
-        { id: 'gemini-flash-latest', name: 'Gemini Flash Latest' }
+        {
+          id: 'gemini-3.5-flash-lite',
+          name: '3.5 Flash-Lite (RPD: ৫০০ | RPM: ১৫) [বুদ্ধিমত্তা: ★★★★☆ চটপটে ও সরাসরি — ডিফল্ট]',
+          insight: '⚡ <b>বুদ্ধিমত্তা:</b> ★★★★☆ (হাই স্পিড)। সুনির্দিষ্ট নিয়ম ও কোর্স ফিতে নির্ভুল।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> চটপটে, মার্জিত ও টু-দ্য-পয়েন্ট।<br>📊 <b>কোটা:</b> প্রতিদিন ৫০০ মেসেজ | প্রতি মিনিটে ১৫টি।'
+        },
+        {
+          id: 'gemini-3.1-flash-lite',
+          name: '3.1 Flash-Lite (RPD: ৫০০ | RPM: ১৫) [বুদ্ধিমত্তা: ★★★★☆ ধারাবাহিক ও নির্ভরযোগ্য]',
+          insight: '🛡️ <b>বুদ্ধিমত্তা:</b> ★★★★☆ (ধারাবাহিক)। আগের কথা মনে রেখে স্থিতিশীল উত্তর দেয়।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> বিনয়ী, শান্ত ও সহযোগী।<br>📊 <b>কোটা:</b> প্রতিদিন ৫০০ মেসেজ | প্রতি মিনিটে ১৫টি।'
+        },
+        {
+          id: 'gemini-3.6-flash',
+          name: '3.6 Flash (RPD: ২০ | RPM: ৫) [বুদ্ধিমত্তা: ★★★★★ শীর্ষ হিউম্যানয়েড ও ডিপ রিজনিং]',
+          insight: '🧠 <b>বুদ্ধিমত্তা:</b> ★★★★★ (ফ্ল্যাগশিপ)। দ্বিধাগ্রস্ত স্টুডেন্ট কনভিন্স ও জটিল পরিস্থিতি সামলাতে অপ্রতিদ্বন্দ্বী।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> হুবহু অভিজ্ঞ মানুষের মতো আন্তরিক ও বুদ্ধিদীপ্ত।<br>📊 <b>কোটা:</b> প্রতিদিন ২০ মেসেজ | প্রতি মিনিটে ৫টি।'
+        },
+        {
+          id: 'gemini-3.5-flash',
+          name: '3.5 Flash (RPD: ২০ | RPM: ৫) [বুদ্ধিমত্তা: ★★★★★ ব্যালেন্সড ও মানবিক বাচনভঙ্গি]',
+          insight: '💎 <b>বুদ্ধিমত্তা:</b> ★★★★★ (উন্নত)। গতি ও গভীর মানবিক বাচনভঙ্গির চমৎকার ব্যালেন্স।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> প্রাকৃতিক ও প্রফেশনাল কাউন্সিলর।<br>📊 <b>কোটা:</b> প্রতিদিন ২০ মেসেজ | প্রতি মিনিটে ৫টি।'
+        },
+        {
+          id: 'gemini-3.8-flash',
+          name: '3.8 Flash (RPD: ২০ | RPM: ৫) [বুদ্ধিমত্তা: ★★★★★ ফ্ল্যাগশিপ এক্সট্রিম রিজনিং]',
+          insight: '🔥 <b>বুদ্ধিমত্তা:</b> ★★★★★ (সর্বাধুনিক পাওয়ার)। জটিল প্যাঁচানো প্রশ্ন ও যুক্তি বুঝতে দারুণ।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> অত্যন্ত তীক্ষ্ণ ও বিশ্লেষণধর্মী।<br>📊 <b>কোটা:</b> প্রতিদিন ২০ মেসেজ | প্রতি মিনিটে ৫টি।'
+        },
+        {
+          id: 'gemini-3-flash-preview',
+          name: '3 Flash Preview (RPD: ২০ | RPM: ৫) [বুদ্ধিমত্তা: ★★★★☆ সৃজনশীল ও স্মার্ট কথোপকথন]',
+          insight: '💡 <b>বুদ্ধিমত্তা:</b> ★★★★☆ (সৃজনশীল)। অপ্রত্যাশিত পরিস্থিতি সহজে মানিয়ে নিতে পারে।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> প্রাণবন্ত ও সপ্রতিভ।<br>📊 <b>কোটা:</b> প্রতিদিন ২০ মেসেজ | প্রতি মিনিটে ৫টি।'
+        },
+        {
+          id: 'gemini-3.1-pro-preview',
+          name: '3.1 Pro Preview (RPD: ২০ | RPM: ২) [বুদ্ধিমত্তা: ★★★★★ গভীর প্রো বিশ্লেষণ]',
+          insight: '👑 <b>বুদ্ধিমত্তা:</b> ★★★★★ (প্রো লেভেল)। একাডেমিক জটিল বিষয় ও দীর্ঘ বিশ্লেষণ তৈরিতে সক্ষম।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> অত্যন্ত গভীর ও প্রাতিষ্ঠানিক।<br>📊 <b>কোটা:</b> প্রতিদিন ২০ মেসেজ | প্রতি মিনিটে ২টি।'
+        },
+        {
+          id: 'gemini-flash-latest',
+          name: 'Flash Latest (গুগল ডায়নামিক কোটা) [বুদ্ধিমত্তা: ★★★★☆ সর্বশেষ স্ট্যাবল সংস্করণ]',
+          insight: '🚀 <b>বুদ্ধিমত্তা:</b> ★★★★☆ (অটো আপডেটেড)। গুগলের সর্বশেষ সংস্করণ যা নিজে থেকেই সেরা পারফর্ম করে।<br>💬 <b>হিউম্যানয়েড ভঙ্গি:</b> আধুনিক ও সুসংহত।'
+        }
       ]
     };
 
@@ -1596,6 +1644,19 @@
       updateApiKeyStatusBadge();
     }
 
+    function updateModalModelInsight(prov, modelId) {
+      const box = document.getElementById('modalModelInsight');
+      if (!box) return;
+      const list = MODAL_SUPPORTED_MODELS[prov] || [];
+      const item = list.find(m => m.id === modelId) || list[0];
+      if (item && item.insight) {
+        box.innerHTML = item.insight;
+        box.style.display = 'block';
+      } else {
+        box.style.display = 'none';
+      }
+    }
+
     function populateModalModels(prov) {
       const select = document.getElementById('modalModelSelect');
       if (!select) return;
@@ -1613,10 +1674,13 @@
         select.value = list[0].id;
         modalAiConfig.selectedModel = list[0].id;
       }
+      updateModalModelInsight(prov, select.value);
     }
 
     function onModalModelChange() {
-      modalAiConfig.selectedModel = document.getElementById('modalModelSelect').value;
+      const val = document.getElementById('modalModelSelect').value;
+      modalAiConfig.selectedModel = val;
+      updateModalModelInsight(modalAiConfig.provider || 'gemini', val);
       try {
         localStorage.setItem('agent_ai_config', JSON.stringify(modalAiConfig));
       } catch (e) {}
